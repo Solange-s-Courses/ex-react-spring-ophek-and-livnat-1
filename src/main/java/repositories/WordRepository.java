@@ -24,98 +24,103 @@ public class WordRepository {
     @SuppressWarnings("unchecked")
     private void loadWords() {
 
-        synchronized (words) {
-            File file = new File(WORD_FILE);
-            if (file.exists()) {
-                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                    List<WordEntry> loadedWords = (List<WordEntry>) ois.readObject();
-                    words.clear();
-                    words.addAll(loadedWords);
-                }
-                catch (IOException | ClassNotFoundException e) {
-                    System.err.println("Error loading words: " + e.getMessage());
-                    words.clear();
-                }
-            }
-            else {
+        File file = new File(WORD_FILE);
+        if (!file.exists()) return;
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            List<WordEntry> loadedWords = (List<WordEntry>) ois.readObject();
+            synchronized (words) {
                 words.clear();
+                words.addAll(loadedWords);
             }
+        }
+        catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading words: " + e.getMessage());
         }
     }
 
-
-    public WordEntry getWord(String word) {
-
+    /**
+     * Finds a word entry by its word value
+     * @param word The word to search for (assumed to be already lowercase)
+     * @return The word entry if found, null otherwise
+     */
+    public WordEntry findByWord(String word) {
         synchronized (words) {
-
-            WordEntry wordEntry = null;
             for (WordEntry entry : words) {
                 if (entry.getWord().equals(word)) {
-                    wordEntry = new WordEntry(entry.getCategory(),entry.getWord(), entry.getHint());
-                    break;
+                    return entry;
                 }
             }
-            return wordEntry;
+            return null;
         }
-
     }
 
-    // pass the old word - means we have to save it when the user clicks the edit option!
-    // it'll be in the body of the put api request!!
-    public WordEntry updateWord (WordEntry wordEntry, String oldWord) {
+    /**
+     * Updates an existing word entry
+     * @param oldWord The word to update (assumed to be already lowercase)
+     * @param updatedEntry The updated entry data
+     * @return true if update was successful, false if entry wasn't found
+     */
+    public boolean update(String oldWord, WordEntry updatedEntry) {
 
         synchronized (words) {
             for (WordEntry entry : words) {
-
-                // since the word is unique we search for it
                 if (entry.getWord().equals(oldWord)) {
-                    entry.updateWord(wordEntry);
-                    // maybe try adding a method in entry that updates by getting the entry and coping
-//                    entry.setCategory(wordEntry.getCategory());
-//                    entry.setHint(wordEntry.getHint());
-//                    entry.setWord(wordEntry.getWord());
-                    break;
+                    entry.updateWord(updatedEntry);
+                    saveToFile();
+                    return true;
                 }
             }
-
+            return false;
         }
-        return wordEntry;
     }
 
+    /**
+     * Returns all word entries
+     * @return A new ArrayList containing all words
+     */
     public ArrayList<WordEntry> getWords() {
-        return new ArrayList<>(words);
+        synchronized (words) {
+            return new ArrayList<>(words);
+        }
     }
 
+    /**
+     * Deletes a word entry
+     * @param word The word to delete (assumed to be already lowercase)
+     */
+    public void delete(String word) {
+
+        synchronized (words) {
+            words.removeIf(entry -> entry.getWord().equals(word));
+            saveToFile();
+        }
+    }
+
+    /**
+     * Persists the words to the file
+     */
+    public void saveToFile() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(WORD_FILE))) {
+            synchronized (words) {
+                oos.writeObject(words);
+            }
+        }
+        catch (IOException e) {
+                throw new RuntimeException("Failed to save words", e);
+        }
+    }
+
+    /**
+     * Saves a new word entry only if unique
+     * @param wordEntry The word entry to save
+     * @throws IllegalArgumentException if wordEntry is null
+     */
     public void addWord(WordEntry wordEntry) {
         synchronized (words) {
-
-            //checking if words contains that word, since the word has to be unique
-            for (WordEntry entry : words) {
-                if (entry.getWord().equals(wordEntry.getWord())) {
-                    return;
-                }
-            }
             words.add(wordEntry);
-
-        }
-    }
-
-    public void removeWord(WordEntry wordEntry) {
-        synchronized (words) {
-            words.removeIf(entry -> entry.getWord().equals(wordEntry.getWord()));
-        }
-    }
-
-    // function that saves the wi=ords into word.ser
-    public void saveWords() {
-        synchronized (words) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(WORD_FILE))) {
-                oos.writeObject(words);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to save words", e);
-            }
+            saveToFile();
         }
     }
 }
-
 
