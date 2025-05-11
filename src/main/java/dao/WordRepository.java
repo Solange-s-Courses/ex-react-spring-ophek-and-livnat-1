@@ -1,9 +1,13 @@
 package dao;
 
+import org.springframework.stereotype.Repository;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Repository
 public class WordRepository {
 
     private static final String WORD_FILE = "src/main/resources/words.ser";
@@ -20,7 +24,7 @@ public class WordRepository {
     @SuppressWarnings("unchecked")
     private void loadWords() {
 
-        synchronized (this) {
+        synchronized (words) {
             File file = new File(WORD_FILE);
             if (file.exists()) {
                 try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
@@ -65,17 +69,52 @@ public class WordRepository {
 
                 // since the word is unique we search for it
                 if (entry.getWord().equals(oldWord)) {
-
+                    entry.updateWord(wordEntry);
                     // maybe try adding a method in entry that updates by getting the entry and coping
-                    entry.setCategory(wordEntry.getCategory());
-                    entry.setHint(wordEntry.getHint());
-                    entry.setWord(wordEntry.getWord());
+//                    entry.setCategory(wordEntry.getCategory());
+//                    entry.setHint(wordEntry.getHint());
+//                    entry.setWord(wordEntry.getWord());
                     break;
                 }
             }
 
         }
         return wordEntry;
+    }
+
+    public ArrayList<WordEntry> getWords() {
+        return new ArrayList<>(words);
+    }
+
+    public void addWord(WordEntry wordEntry) {
+        synchronized (words) {
+
+            //checking if words contains that word, since the word has to be unique
+            for (WordEntry entry : words) {
+                if (entry.getWord().equals(wordEntry.getWord())) {
+                    return;
+                }
+            }
+            words.add(wordEntry);
+
+        }
+    }
+
+    public void removeWord(WordEntry wordEntry) {
+        synchronized (words) {
+            words.removeIf(entry -> entry.getWord().equals(wordEntry.getWord()));
+        }
+    }
+
+    // function that saves the wi=ords into word.ser
+    public void saveWords() {
+        synchronized (words) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(WORD_FILE))) {
+                oos.writeObject(words);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save words", e);
+            }
+        }
     }
 }
 

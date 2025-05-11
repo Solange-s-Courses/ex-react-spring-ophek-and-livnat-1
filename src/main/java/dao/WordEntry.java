@@ -1,5 +1,6 @@
 package dao;
 
+import static utils.ValidationUtil.*;
 import java.io.Serializable;
 
 public class WordEntry implements Serializable {
@@ -22,26 +23,13 @@ public class WordEntry implements Serializable {
         this.hint = hint;
     }
 
-
-    public void checkNotEmpty(String s) {
-        if (s == null || s.isEmpty()) {
-            throw new IllegalArgumentException("Empty argument");
-        }
-    }
-
-    public void checkIsAlphabetic(String s) {
-        if (!s.matches("[a-zA-Z]+")) {
-            throw new IllegalArgumentException("String must contain only alphabetic characters (a–z or A–Z)");
-        }
-    }
-
-
     public String getCategory() {
         return category;
     }
 
 
     public void setCategory(String category) {
+        checkNotEmpty(category);
         this.category = category;
     }
 
@@ -52,6 +40,8 @@ public class WordEntry implements Serializable {
 
 
     public void setWord(String word) {
+        checkNotEmpty(word);
+        checkIsAlphabetic(word);
         this.word = word;
     }
 
@@ -61,6 +51,13 @@ public class WordEntry implements Serializable {
     }
 
     public void setHint(String hint) {
+        checkNotEmpty(hint);
         this.hint = hint;
+    }
+
+    public void updateWord(WordEntry other) {
+        setWord(other.getWord());
+        setHint(other.getHint());
+        setCategory(other.getCategory());
     }
 }
