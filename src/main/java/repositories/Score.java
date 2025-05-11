@@ -21,11 +21,8 @@ public class Score implements Serializable {
      * @param score Calculated final score
      */
     public Score(String nickname, int score) {
-
-        checkNotEmpty(nickname);
-        checkIsValidScore(score);
-        this.nickname = nickname;
-        this.score = score;
+        setNickname(nickname);
+        setScore(score);
     }
 
     // Getters and setters
@@ -34,6 +31,7 @@ public class Score implements Serializable {
     }
 
     public void setNickname(String nickname) {
+        checkNotEmpty(nickname);
         this.nickname = nickname;
     }
 
@@ -42,6 +40,7 @@ public class Score implements Serializable {
     }
 
     public void setScore(int score) {
+        checkIsValidScore(score);
         this.score = score;
     }
 
