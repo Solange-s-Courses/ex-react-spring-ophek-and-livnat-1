@@ -1,25 +1,37 @@
-import logo from './logo.svg';
+import Header from "./components/header/Header";
+import LeaderboardPage from "./components/leaderboard/LeaderboardPage";
+import HomePage from "./components/homePage/HomePage";
+import About from "./components/About";
+import NotFound from "./components/NotFound";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './App.css';
 
+
+/**
+ * Root component of the application.
+ * Manages cities state using useReducer and provides routing for different views.
+ *
+ * @returns {JSX.Element} The main application component.
+ * @constructor
+ */
 function App() {
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Header/>}>
+              <Route index element={<HomePage/>}/>
+              <Route path="/Leaderboard" element = {<LeaderboardPage/>}/>
+              <Route path="/About" element={<About/>}/>
+              <Route path={"*"} element={<NotFound/>}/>
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </div>
   );
 }
+
 
 export default App;

@@ -35,7 +35,7 @@ public class ScoreController {
      * @param scoreDTO Data Transfer Object containing game statistics
      * @return ResponseEntity with the submission result
      */
-    @PostMapping("")
+    @PostMapping(value ="")
     public ResponseEntity<Score> submitScore(@RequestBody ScoreDTO scoreDTO) throws IOException, IllegalArgumentException {
 
         // Validate all required fields
