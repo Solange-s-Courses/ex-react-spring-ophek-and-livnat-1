@@ -41,6 +41,7 @@ public class WordRepository {
 
     /**
      * Finds a word entry by its word value
+     *
      * @param word The word to search for (assumed to be already lowercase)
      * @return The word entry if found, null otherwise
      */
@@ -55,8 +56,24 @@ public class WordRepository {
         }
     }
 
+    public List<WordEntry> findByCategory(String category) {
+
+        List<WordEntry> foundWords = new ArrayList<>();
+
+        synchronized (words) {
+            for (WordEntry entry : words) {
+                if (entry.getCategory().equals(category)) {
+                    foundWords.add(entry);
+                }
+            }
+        }
+
+        return foundWords;
+    }
+
     /**
      * Updates an existing word entry
+     *
      * @param oldWord The word to update (assumed to be already lowercase)
      * @param updatedEntry The updated entry data
      * @return true if update was successful, false if entry wasn't found
@@ -77,6 +94,7 @@ public class WordRepository {
 
     /**
      * Returns all word entries
+     *
      * @return A new ArrayList containing all words
      */
     public ArrayList<WordEntry> getWords() {
@@ -87,6 +105,7 @@ public class WordRepository {
 
     /**
      * Deletes a word entry
+     *
      * @param word The word to delete (assumed to be already lowercase)
      */
     public void delete(String word) {
@@ -112,9 +131,9 @@ public class WordRepository {
     }
 
     /**
-     * Saves a new word entry only if unique
+     * Saves a new word entry
+     *
      * @param wordEntry The word entry to save
-     * @throws IllegalArgumentException if wordEntry is null
      */
     public void addWord(WordEntry wordEntry) {
         synchronized (words) {

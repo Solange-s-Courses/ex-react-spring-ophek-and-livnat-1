@@ -1,17 +1,22 @@
 package services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import repositories.WordEntry;
 import repositories.WordRepository;
 
 import java.util.List;
+import java.util.Random;
+
 
 
 @Service
 public class WordService {
 
     private final WordRepository wordRepository;
+    private final Random random = new Random();
 
     @Autowired
     public WordService(WordRepository wordRepository) {
@@ -19,14 +24,19 @@ public class WordService {
     }
 
     /**
-     * Gets a word entry by its word value
-     * @param word The word to search for
-     * @return The word entry if found, null otherwise
+     * Gets a random word entry
+     * @return a word entry if there's any, null otherwise
      */
-    public WordEntry getWord(String word) {
+    public WordEntry getRandomWordByCategory(String category) {
 
-        if (word == null || word.isEmpty()) return null;
-        return wordRepository.findByWord(word.toLowerCase());
+        if (category == null || category.isEmpty()) {
+            throw new IllegalArgumentException("Invalid category");
+        }
+
+        List<WordEntry> categoryList = wordRepository.findByCategory(category.toLowerCase());
+        if (categoryList.isEmpty()) return null;
+
+        return categoryList.get(random.nextInt(categoryList.size()));
     }
 
     /**
@@ -38,7 +48,21 @@ public class WordService {
     }
 
     /**
+     * Gets a word entry by its word value
+     * @param word The word to search for
+     * @return The word entry if found, null otherwise
+     */
+    public WordEntry getWord(String word) {
+
+        if (word == null || word.isEmpty()) {
+            throw new IllegalArgumentException("Invalid word");
+        }
+        return wordRepository.findByWord(word.toLowerCase());
+    }
+
+    /**
      * Adds a new word if it doesn't exist already
+     *
      * @param wordEntry The word entry to add
      * @return true if word was added, false if it already exists
      * @throws IllegalArgumentException if validation fails
@@ -58,7 +82,15 @@ public class WordService {
         return true;
     }
 
-
+    /**
+     * Updates an existing word entry, optionally changing the word.
+     *
+     * @param updatedWord The updated WordEntry.
+     * @param oldWord The original word to be replaced.
+     * @return The updated WordEntry if the update succeeded, or null if the new word conflicts with an existing one or
+     * if the update failed.
+     * @throws IllegalArgumentException if arguments are null or empty.
+     */
     public WordEntry updateWord(WordEntry updatedWord, String oldWord) {
         if (updatedWord == null || oldWord == null || oldWord.isEmpty()) {
             throw new IllegalArgumentException("Invalid arguments");
@@ -70,12 +102,16 @@ public class WordService {
         // check if the new word already exists
         if (!normalizedOldWord.equals(newWord)) {
             if (wordRepository.findByWord(newWord) != null) {
-                return null; // conflict since there's already a word with the wanted value
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Word already exists");  // Throw conflict exception
             }
         }
 
         boolean success = wordRepository.update(normalizedOldWord, updatedWord);
-        return success? updatedWord : null;
+        if (!success) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update word");  // If update fails
+        }
+
+        return updatedWord;  // Success
     }
 
     /**
