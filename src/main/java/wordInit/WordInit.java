@@ -1,5 +1,5 @@
 package wordInit;
-import dao.WordEntry;
+import repositories.WordEntry;
 
 import java.io.*;
 import java.util.*;

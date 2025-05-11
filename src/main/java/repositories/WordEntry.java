@@ -1,4 +1,4 @@
-package dao;
+package repositories;
 
 import static utils.ValidationUtil.*;
 import java.io.Serializable;
