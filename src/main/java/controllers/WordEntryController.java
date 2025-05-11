@@ -57,6 +57,19 @@ public class WordEntryController {
         }
     }
 
+    @DeleteMapping("/delete/{word}")
+    public ResponseEntity<HttpStatus> deleteWord(@PathVariable("word") final String word) {
+        boolean removed = wordService.removeWord(word);
+        if (!removed) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Word entry wasn't removed");
+        }
+        return ResponseEntity.ok(HttpStatus.OK);  // Success: Word deleted
+    }
+
+    // add method for saving?
+
+
+
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<String> handleAllExceptions(Exception ex) {
         return ResponseEntity.badRequest().body("Invalid request: " + ex.getMessage());
