@@ -7,9 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import repositories.WordEntry;
 import repositories.WordRepository;
 
-import java.util.List;
-import java.util.Random;
-
+import java.util.*;
 
 
 @Service
@@ -138,6 +136,21 @@ public class WordService {
      */
     public void saveChanges() {
         wordRepository.saveToFile();
+    }
+
+    /**
+     * Retrieves all categories
+     * @return List<String> list of categories
+     * @throws IllegalArgumentException if word is null or empty
+     */
+    public List<String> getCategories() {
+        List<WordEntry> allWords = getAllWords();
+        Set<String> categoriesSet = new HashSet<>();
+
+        for (WordEntry entry: allWords) {
+            categoriesSet.add(entry.getCategory());
+        }
+        return new ArrayList<>(categoriesSet);
     }
 
 }

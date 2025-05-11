@@ -66,8 +66,21 @@ public class WordEntryController {
         return ResponseEntity.ok(HttpStatus.OK);  // Success: Word deleted
     }
 
-    // add method for saving?
+    @PostMapping("/save")
+    public ResponseEntity<HttpStatus> save() {
+        wordService.saveChanges();
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
 
+    @GetMapping("/getCategories")
+    public ResponseEntity<List<String>> getCategories() {
+        List<String> categories = wordService.getCategories();
+        if (categories.isEmpty()) {
+            return ResponseEntity.noContent().build(); // HTTP 204
+        }
+        return ResponseEntity.ok(categories);
+
+    }
 
 
     @ExceptionHandler({IllegalArgumentException.class})
