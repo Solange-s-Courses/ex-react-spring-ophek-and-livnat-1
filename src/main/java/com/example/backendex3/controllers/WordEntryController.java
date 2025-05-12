@@ -1,11 +1,11 @@
-package controllers;
+package com.example.backendex3.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import repositories.WordEntry;
-import services.WordService;
+import com.example.backendex3.repositories.WordEntry;
+import com.example.backendex3.services.WordService;
 
 import java.util.List;
 

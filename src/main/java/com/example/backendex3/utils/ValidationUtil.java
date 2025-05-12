@@ -1,4 +1,4 @@
-package utils;
+package com.example.backendex3.utils;
 
 public final class ValidationUtil {
 

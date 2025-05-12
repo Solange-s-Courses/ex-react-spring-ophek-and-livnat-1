@@ -1,8 +1,7 @@
-package repositories;
+package com.example.backendex3.repositories;
 
-import static utils.ValidationUtil.*;
 import java.io.Serializable;
-
+import static com.example.backendex3.utils.ValidationUtil.*;
 /**
  * Represents a word entry containing a category, the word itself, and a hint.
  * Implements validation on all fields.

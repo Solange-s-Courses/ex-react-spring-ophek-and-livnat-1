@@ -1,11 +1,11 @@
-package services;
+package com.example.backendex3.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import repositories.WordEntry;
-import repositories.WordRepository;
+import com.example.backendex3.repositories.WordEntry;
+import com.example.backendex3.repositories.WordRepository;
 
 import java.util.*;
 

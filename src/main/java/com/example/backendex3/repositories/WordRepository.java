@@ -1,4 +1,4 @@
-package repositories;
+package com.example.backendex3.repositories;
 
 import org.springframework.stereotype.Repository;
 

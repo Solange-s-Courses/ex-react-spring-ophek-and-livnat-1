@@ -1,5 +1,5 @@
-package wordInit;
-import repositories.WordEntry;
+package com.example.backendex3.wordInit;
+import com.example.backendex3.repositories.WordEntry;
 
 import java.io.*;
 import java.util.*;

@@ -1,7 +1,6 @@
-package repositories;
+package com.example.backendex3.repositories;
 import java.io.Serializable;
-import static utils.ValidationUtil.*;
-
+import static com.example.backendex3.utils.ValidationUtil.*;
 
 /**
  * Represents a player's score entry for the leaderboard.

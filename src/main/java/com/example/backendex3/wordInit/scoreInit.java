@@ -1,7 +1,7 @@
-package wordInit;
+package com.example.backendex3.wordInit;
 
 
-import repositories.Score;
+import com.example.backendex3.repositories.Score;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

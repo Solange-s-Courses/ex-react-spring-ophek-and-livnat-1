@@ -1,6 +1,5 @@
-package dto;
-import static utils.ValidationUtil.*;
-
+package com.example.backendex3.dto;
+import static com.example.backendex3.utils.ValidationUtil.*;
 /**
  * Data Transfer Object for game statistics and score calculation.
  * Used to transfer game results from the frontend to the backend.

@@ -1,7 +1,7 @@
-package services;
+package com.example.backendex3.services;
 
-import repositories.Score;
-import repositories.ScoreRepository;
+import com.example.backendex3.repositories.Score;
+import com.example.backendex3.repositories.ScoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

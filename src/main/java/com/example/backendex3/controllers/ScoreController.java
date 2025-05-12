@@ -1,14 +1,13 @@
-package controllers;
-import dto.*;
-import org.springframework.web.ErrorResponse;
+package com.example.backendex3.controllers;
+import com.example.backendex3.dto.ScoreDTO;
 import org.springframework.web.server.ResponseStatusException;
-import repositories.Score;
-import services.ScoreService;
+import com.example.backendex3.repositories.Score;
+import com.example.backendex3.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import utils.ValidationUtil;
+import com.example.backendex3.utils.ValidationUtil;
 
 import java.io.IOException;
 import java.util.List;
