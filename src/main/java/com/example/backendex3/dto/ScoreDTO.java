@@ -1,14 +1,29 @@
 package com.example.backendex3.dto;
-import static com.example.backendex3.utils.ValidationUtil.*;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
 /**
  * Data Transfer Object for game statistics and score calculation.
  * Used to transfer game results from the frontend to the backend.
+ * Uses Bean Validation annotations for input validation.
  */
 public class ScoreDTO {
+
+    @NotBlank(message = "Nickname cannot be empty")
     private String nickname;
+
+    @Min(value = 0, message = "Time taken cannot be negative")
     private int timeTakenSeconds;
+
+    @PositiveOrZero(message = "Attempts must be positive")
     private int attempts;
+
     private boolean usedHint;
+
+    @Positive(message = "Word length must be positive")
     private int wordLength;
 
     // Default constructor
@@ -24,11 +39,11 @@ public class ScoreDTO {
      * @param wordLength Length of the word
      */
     public ScoreDTO(String nickname, int timeTakenSeconds, int attempts, boolean usedHint, int wordLength) {
-        setNickname(nickname);
-        setTimeTakenSeconds(timeTakenSeconds);
-        setAttempts(attempts);
+        this.nickname = nickname;
+        this.timeTakenSeconds = timeTakenSeconds;
+        this.attempts = attempts;
         this.usedHint = usedHint;
-        setWordLength(wordLength);
+        this.wordLength = wordLength;
     }
 
     // Getters and setters
@@ -37,7 +52,6 @@ public class ScoreDTO {
     }
 
     public void setNickname(String nickname) {
-        checkNotEmpty(nickname);
         this.nickname = nickname;
     }
 
@@ -46,7 +60,6 @@ public class ScoreDTO {
     }
 
     public void setTimeTakenSeconds(int timeTakenSeconds) {
-        checkIsValidTime(timeTakenSeconds);
         this.timeTakenSeconds = timeTakenSeconds;
     }
 
@@ -55,7 +68,6 @@ public class ScoreDTO {
     }
 
     public void setAttempts(int attempts) {
-        checkIsValidAttempts(attempts);
         this.attempts = attempts;
     }
 
@@ -72,7 +84,6 @@ public class ScoreDTO {
     }
 
     public void setWordLength(int wordLength) {
-        checkIsValidWordLength(wordLength);
         this.wordLength = wordLength;
     }
 }

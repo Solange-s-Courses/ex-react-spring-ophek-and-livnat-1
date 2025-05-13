@@ -1,5 +1,7 @@
 package com.example.backendex3.controllers;
 import com.example.backendex3.dto.ScoreDTO;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 import com.example.backendex3.repositories.Score;
 import com.example.backendex3.services.ScoreService;
@@ -8,9 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.backendex3.utils.ValidationUtil;
+import org.springframework.validation.annotation.Validated;
 
+import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST Controller for score management and leaderboard functionality.
@@ -35,14 +41,7 @@ public class ScoreController {
      * @return ResponseEntity with the submission result
      */
     @PostMapping(value ="")
-    public ResponseEntity<Score> submitScore(@RequestBody ScoreDTO scoreDTO) throws IOException, IllegalArgumentException {
-
-        // Validate all required fields
-        ValidationUtil.checkNotEmpty(scoreDTO.getNickname());
-        ValidationUtil.checkIsValidTime(scoreDTO.getTimeTakenSeconds());
-        ValidationUtil.checkIsValidAttempts(scoreDTO.getAttempts());
-        ValidationUtil.checkIsValidWordLength(scoreDTO.getWordLength());
-
+    public ResponseEntity<Score> submitScore(@Valid @RequestBody ScoreDTO scoreDTO) throws IOException, IllegalArgumentException {
         // Calculate score based on game statistics
         int calculatedScore = scoreService.calculateScore(
                 scoreDTO.getTimeTakenSeconds(),
@@ -75,14 +74,27 @@ public class ScoreController {
     }
 
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body("Invalid input: " + e.getMessage());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAllExceptions(Exception e) {
-        return ResponseEntity.internalServerError().body("Internal server error: " + e.getMessage());
-    }
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex)
+//    {
+//        Map<String, String> errors = new HashMap<>();
+//        ex.getBindingResult().getAllErrors().forEach((error) -> {
+//            String fieldName = ((FieldError) error).getField();
+//            String errorMessage = error.getDefaultMessage();
+//            errors.put(fieldName, errorMessage);
+//        });
+//        return errors;
+//    }
+//
+//    @ExceptionHandler(IllegalArgumentException.class)
+//    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+//        return ResponseEntity.badRequest().body("Invalid input: " + e.getMessage());
+//    }
+//
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<String> handleAllExceptions(Exception e) {
+//        return ResponseEntity.internalServerError().body("Internal server error: " + e.getMessage());
+//    }
 
 }
