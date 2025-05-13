@@ -1,5 +1,7 @@
 package com.example.backendex3.controllers;
 
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ public class WordEntryController {
 
     private final WordService wordService;
 
+    @Autowired
     public WordEntryController(WordService wordService) {
         this.wordService = wordService;
     }
@@ -26,11 +29,16 @@ public class WordEntryController {
 
     @GetMapping("/getRandomWord")
     public WordEntry getWordEntry(@RequestParam String category) {
-        return wordService.getRandomWordByCategory(category);
+        WordEntry randomWord = wordService.getRandomWordByCategory(category);
+        if (randomWord == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "No words found in category: " + category);
+        }
+        return randomWord;
     }
 
     @PostMapping("/add")
-    public ResponseEntity<WordEntry> addWord(@RequestBody final WordEntry entry) {
+    public ResponseEntity<WordEntry> addWord(@Valid @RequestBody final WordEntry entry) {
         boolean added = wordService.addWord(entry);
         if (!added) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Word already exists");
@@ -39,18 +47,13 @@ public class WordEntryController {
     }
 
     @PutMapping("/update/{word}")
-    public ResponseEntity<HttpStatus> updateWord(@PathVariable("word") final String word, @RequestBody final WordEntry entry) {
+    public ResponseEntity<HttpStatus> updateWord(@Valid @PathVariable("word") final String word, @RequestBody final WordEntry entry) {
 
         WordEntry oldEntry = wordService.getWord(word);
 
         if (oldEntry != null) {
-            try {
-                WordEntry updated = wordService.updateWord(entry, oldEntry.getWord());
-                return ResponseEntity.ok(HttpStatus.OK);  // Success: Word updated
-            }
-            catch (ResponseStatusException ex) {
-                throw ex;  // Pass along the exception to be handled by global exception handler
-            }
+            WordEntry updated = wordService.updateWord(entry, oldEntry.getWord());
+            return ResponseEntity.ok(HttpStatus.OK);
         }
         else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found");
@@ -81,14 +84,4 @@ public class WordEntryController {
         return ResponseEntity.ok(categories);
 
     }
-
-
-    @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity<String> handleAllExceptions(Exception ex) {
-        return ResponseEntity.badRequest().body("Invalid request: " + ex.getMessage());
-    }
-
-
-
-
 }

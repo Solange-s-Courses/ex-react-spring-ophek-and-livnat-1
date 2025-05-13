@@ -32,6 +32,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body("Invalid input: " + e.getMessage());
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
+        // Check if this is a repository-related error
+        if (e.getMessage() != null &&
+                (e.getMessage().contains("file") ||
+                        e.getMessage().contains("save") ||
+                        e.getMessage().contains("load") ||
+                        e.getMessage().contains("deserializ"))) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Repository error: " + e.getMessage());
+        }
+
+        // Handle other runtime exceptions as general server errors
+        return ResponseEntity.internalServerError().body("Server error: " + e.getMessage());
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception e) {
         return ResponseEntity.internalServerError().body("Internal server error: " + e.getMessage());

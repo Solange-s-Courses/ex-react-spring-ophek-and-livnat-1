@@ -34,8 +34,11 @@ public class WordRepository {
                 words.addAll(loadedWords);
             }
         }
-        catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error loading words: " + e.getMessage());
+        catch (IOException e){
+            throw new RuntimeException("Error loading words from file: " + e.getMessage(), e);
+        }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException("Error deserializing word data: " + e.getMessage(), e);
         }
     }
 
@@ -118,15 +121,16 @@ public class WordRepository {
 
     /**
      * Persists the words to the file
+     * @throws RuntimeException if there's an error saving to file
      */
-    public void saveToFile() {
+    public void saveToFile() throws RuntimeException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(WORD_FILE))) {
             synchronized (words) {
                 oos.writeObject(words);
             }
         }
         catch (IOException e) {
-                throw new RuntimeException("Failed to save words", e);
+            throw new RuntimeException("Failed to save words to file: " + e.getMessage(), e);
         }
     }
 

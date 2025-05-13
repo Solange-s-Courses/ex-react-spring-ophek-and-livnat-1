@@ -1,15 +1,26 @@
 package com.example.backendex3.repositories;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+
 import java.io.Serializable;
-import static com.example.backendex3.utils.ValidationUtil.*;
+
+
 /**
  * Represents a word entry containing a category, the word itself, and a hint.
  * Implements validation on all fields.
  */
 public class WordEntry implements Serializable {
 
+    @NotEmpty
+    @Pattern(regexp = "[a-zA-Z]+", message="Category must contain only alphabetic characters (a–z or A–Z)")
     private String category;
+
+    @NotEmpty
+    @Pattern(regexp = "[a-zA-Z]+", message="Word must contain only alphabetic characters (a–z or A–Z)")
     private String word;
+
+    @NotEmpty
     private String hint;
 
     public WordEntry(){}
@@ -23,9 +34,9 @@ public class WordEntry implements Serializable {
      * @throws IllegalArgumentException if any parameter is empty or invalid.
      */
     public WordEntry(String category, String word, String hint) {
-        setWord(word);
-        setCategory(category);
-        setHint(hint);
+        this.category = category;
+        this.word = word;
+        this.hint = hint;
     }
 
     public String getCategory() {
@@ -33,7 +44,6 @@ public class WordEntry implements Serializable {
     }
 
     public void setCategory(String category) {
-        checkNotEmpty(category);
         this.category = category;
     }
 
@@ -42,8 +52,6 @@ public class WordEntry implements Serializable {
     }
 
     public void setWord(String word) {
-        checkNotEmpty(word);
-        checkIsAlphabetic(word);
         this.word = word;
     }
 
@@ -52,7 +60,6 @@ public class WordEntry implements Serializable {
     }
 
     public void setHint(String hint) {
-        checkNotEmpty(hint);
         this.hint = hint;
     }
 
