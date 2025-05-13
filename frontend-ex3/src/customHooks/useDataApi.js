@@ -8,7 +8,7 @@ import axios from 'axios';
  * @param {Object} action - Action object that describes the change.
  * @param {string} action.type - Type of the action ('FETCH_INIT', 'FETCH_SUCCESS', 'FETCH_FAILURE').
  * @param {*} [action.payload] - Payload of data, only used in 'FETCH_SUCCESS'.
- * @returns {(*&{isLoading: boolean, isError: boolean, data})|(*&{isLoading: boolean, isError: boolean})} Updated state after applying the action.
+ * @returns {Object} Updated state after applying the action.
  */
 const dataFetchReducer = (state, action) => {
     switch (action.type) {
@@ -26,6 +26,7 @@ const dataFetchReducer = (state, action) => {
                 ...state,
                 isLoading: false,
                 isError: true,
+                error: action.payload,
             };
         default:
             throw new Error();
@@ -36,20 +37,24 @@ const dataFetchReducer = (state, action) => {
  * Custom React hook for fetching data from an API using axios.
  *
  * Handles loading, error, and response states via a reducer.
- * It also supports dynamic URL updates for re-fetching data.
+ * Supports all HTTP methods (GET, POST, PUT, DELETE, etc.)
  *
- * @param {string} initialUrl - The initial URL to fetch data from.
+ * @param {Object} initialConfig - The initial configuration for the API request.
+ * @param {string} initialConfig.url - The URL to fetch data from.
+ * @param {string} [initialConfig.method='GET'] - The HTTP method to use.
+ * @param {Object} [initialConfig.data=null] - The data to send with the request (for POST, PUT, etc.).
+ * @param {Object} [initialConfig.headers={}] - Headers to include with the request.
  * @param {*} initialData - The initial data state before fetching.
- * @returns {[Object, Function]} A state object with `data`, `isLoading`, `isError`,
- *   and a function to update the fetch URL.
+ * @returns {[Object, Function]} A state object with `data`, `isLoading`, `isError`, `error`,
+ *   and a function to update the request configuration.
  */
-const useDataApi = (initialUrl, initialData) => {
-
-    const [url, setUrl] = useState(initialUrl);
+const useDataApi = (initialConfig = { url: '', method: 'GET', data: null, headers: {} }, initialData = null) => {
+    const [config, setConfig] = useState(initialConfig);
 
     const [state, dispatch] = useReducer(dataFetchReducer, {
         isLoading: false,
         isError: false,
+        error: null,
         data: initialData,
     });
 
@@ -57,23 +62,34 @@ const useDataApi = (initialUrl, initialData) => {
         let didCancel = false;
 
         /**
-         * Fetches data from the API and updates state accordingly.
+         * Executes the API request and updates state accordingly.
          * Handles cancellation to avoid state updates on unmounted components.
          *
          * @returns {Promise<void>}
          */
         const fetchData = async () => {
+            // Only proceed if we have a URL
+            if (!config.url) return;
+
             dispatch({ type: 'FETCH_INIT' });
 
             try {
-                const result = await axios(url);
+                const result = await axios({
+                    url: config.url,
+                    method: config.method || 'GET',
+                    data: config.data || null,
+                    headers: config.headers || {},
+                });
 
                 if (!didCancel) {
                     dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
                 }
             } catch (error) {
                 if (!didCancel) {
-                    dispatch({ type: 'FETCH_FAILURE' });
+                    dispatch({
+                        type: 'FETCH_FAILURE',
+                        payload: error.response ? error.response.data : error.message
+                    });
                 }
             }
         };
@@ -83,9 +99,9 @@ const useDataApi = (initialUrl, initialData) => {
         return () => {
             didCancel = true;
         };
-    }, [url]);
+    }, [config]);
 
-    return [state, setUrl];
+    return [state, setConfig];
 };
 
 export default useDataApi;

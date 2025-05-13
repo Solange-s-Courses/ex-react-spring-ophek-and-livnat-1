@@ -7,7 +7,7 @@ import useDataApi from './useDataApi';
 
 const useFetchLeaderboard = () => {
 
-    const [{ data, isLoading, isError }] = useDataApi('/api/scores', []);
+    const [{ data, isLoading, isError, error },setConfig] = useDataApi({url:'/api/scores'}, []);
     const [scores, setScores] = useState([]);
 
     useEffect(() => {
