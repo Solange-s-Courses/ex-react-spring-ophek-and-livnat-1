@@ -41,7 +41,7 @@ public class ScoreController {
      * @return ResponseEntity with the submission result
      */
     @PostMapping(value ="")
-    public ResponseEntity<Score> submitScore(@Valid @RequestBody ScoreDTO scoreDTO) throws IOException, IllegalArgumentException {
+    public ResponseEntity<Score> submitScore(@Valid @RequestBody ScoreDTO scoreDTO) throws IOException {
         // Calculate score based on game statistics
         int calculatedScore = scoreService.calculateScore(
                 scoreDTO.getTimeTakenSeconds(),

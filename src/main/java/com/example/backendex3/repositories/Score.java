@@ -1,6 +1,5 @@
 package com.example.backendex3.repositories;
 import java.io.Serializable;
-import static com.example.backendex3.utils.ValidationUtil.*;
 
 /**
  * Represents a player's score entry for the leaderboard.
@@ -30,7 +29,6 @@ public class Score implements Serializable {
     }
 
     public void setNickname(String nickname) {
-        checkNotEmpty(nickname);
         this.nickname = nickname;
     }
 
@@ -39,7 +37,6 @@ public class Score implements Serializable {
     }
 
     public void setScore(int score) {
-        checkIsValidScore(score);
         this.score = score;
     }
 
