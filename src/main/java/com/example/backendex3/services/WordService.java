@@ -76,6 +76,7 @@ public class WordService {
         }
 
         wordEntry.setWord(wordEntry.getWord().toLowerCase());
+        wordEntry.setCategory(wordEntry.getCategory().toLowerCase());
         wordRepository.addWord(wordEntry);
         return true;
     }
