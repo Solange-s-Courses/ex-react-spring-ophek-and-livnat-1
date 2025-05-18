@@ -59,6 +59,16 @@ public class WordService {
     }
 
     /**
+     * Get a word entry by its ID
+     *
+     * @param id The ID to look for
+     * @return The word entry if found, null otherwise
+     */
+    public WordEntry getWordById(String id) {
+        return wordRepository.findById(id);
+    }
+
+    /**
      * Adds a new word if it doesn't exist already
      *
      * @param wordEntry The word entry to add
@@ -82,54 +92,88 @@ public class WordService {
     }
 
     /**
-     * Updates an existing word entry, optionally changing the word.
+     * Updates a word entry by its ID
      *
-     * @param updatedWord The updated WordEntry.
-     * @param oldWord The original word to be replaced.
-     * @return The updated WordEntry if the update succeeded, or null if the new word conflicts with an existing one or
-     * if the update failed.
-     * @throws IllegalArgumentException if arguments are null or empty.
+     * @param id The ID of the word to update
+     * @param updatedEntry The updated word entry
+     * @return The updated entry if successful, null if the word wasn't found
      */
-    public WordEntry updateWord(WordEntry updatedWord, String oldWord) {
-        if (updatedWord == null || oldWord == null || oldWord.isEmpty()) {
-            throw new IllegalArgumentException("Invalid arguments");
+    public WordEntry updateWordById(String id, WordEntry updatedEntry) {
+        WordEntry existingEntry = wordRepository.findById(id);
+        if (existingEntry == null) {
+            return null;
         }
 
-        String normalizedOldWord = oldWord.toLowerCase();
-        String newWord = updatedWord.getWord().toLowerCase();
+        // Convert word and category to lowercase for consistency
+        updatedEntry.setWord(updatedEntry.getWord().toLowerCase());
+        updatedEntry.setCategory(updatedEntry.getCategory().toLowerCase());
 
-        // check if the new word already exists
-        if (!normalizedOldWord.equals(newWord)) {
-            if (wordRepository.findByWord(newWord) != null) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Word already exists");  // Throw conflict exception
-            }
-        }
+        // Preserve the ID
+        updatedEntry.setId(id);
 
-        boolean success = wordRepository.update(normalizedOldWord, updatedWord);
-        if (!success) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update word");  // If update fails
-        }
-
-        return updatedWord;  // Success
+        boolean updated = wordRepository.updateById(id, updatedEntry);
+        return updated ? updatedEntry : null;
     }
 
+//    /**
+//     * Updates an existing word entry, optionally changing the word.
+//     *
+//     * @param updatedWord The updated WordEntry.
+//     * @param oldWord The original word to be replaced.
+//     * @return The updated WordEntry if the update succeeded, or null if the new word conflicts with an existing one or
+//     * if the update failed.
+//     * @throws IllegalArgumentException if arguments are null or empty.
+//     */
+//    public WordEntry updateWord(WordEntry updatedWord, String oldWord) {
+//        if (updatedWord == null || oldWord == null || oldWord.isEmpty()) {
+//            throw new IllegalArgumentException("Invalid arguments");
+//        }
+//
+//        String normalizedOldWord = oldWord.toLowerCase();
+//        String newWord = updatedWord.getWord().toLowerCase();
+//
+//        // check if the new word already exists
+//        if (!normalizedOldWord.equals(newWord)) {
+//            if (wordRepository.findByWord(newWord) != null) {
+//                throw new ResponseStatusException(HttpStatus.CONFLICT, "Word already exists");  // Throw conflict exception
+//            }
+//        }
+//
+//        boolean success = wordRepository.update(normalizedOldWord, updatedWord);
+//        if (!success) {
+//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update word");  // If update fails
+//        }
+//
+//        return updatedWord;  // Success
+//    }
+
+//    /**
+//     * Removes a word entry
+//     * @param word The word to remove
+//     * @return true if word was removed, false if it didn't exist
+//     * @throws IllegalArgumentException if word is null or empty
+//     */
+//    public boolean removeWord(String word) {
+//        if (word == null || word.isEmpty()) {
+//            throw new IllegalArgumentException("Word cannot be null or empty");
+//        }
+//
+//        if (wordRepository.findByWord(word.toLowerCase()) == null) {
+//            return false;
+//        }
+//
+//        wordRepository.delete(word.toLowerCase());
+//        return true;
+//    }
+
     /**
-     * Removes a word entry
-     * @param word The word to remove
-     * @return true if word was removed, false if it didn't exist
-     * @throws IllegalArgumentException if word is null or empty
+     * Removes a word entry by its ID
+     *
+     * @param id The ID of the word to remove
+     * @return true if removal was successful, false if not found
      */
-    public boolean removeWord(String word) {
-        if (word == null || word.isEmpty()) {
-            throw new IllegalArgumentException("Word cannot be null or empty");
-        }
-
-        if (wordRepository.findByWord(word.toLowerCase()) == null) {
-            return false;
-        }
-
-        wordRepository.delete(word.toLowerCase());
-        return true;
+    public boolean removeWordById(String id) {
+        return wordRepository.deleteById(id);
     }
 
     /**

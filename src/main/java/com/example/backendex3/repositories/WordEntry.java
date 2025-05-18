@@ -4,13 +4,15 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 
 import java.io.Serializable;
-
+import java.util.UUID;
 
 /**
  * Represents a word entry containing a category, the word itself, and a hint.
  * Implements validation on all fields.
  */
 public class WordEntry implements Serializable {
+
+    private String id;
 
     @NotEmpty
     @Pattern(regexp = "[a-zA-Z]+", message="Category must contain only alphabetic characters (a–z or A–Z)")
@@ -23,7 +25,9 @@ public class WordEntry implements Serializable {
     @NotEmpty
     private String hint;
 
-    public WordEntry(){}
+    public WordEntry(){
+        this.id = UUID.randomUUID().toString();
+    }
 
     /**
      * Constructs a WordEntry with the given values after validation.
@@ -34,10 +38,14 @@ public class WordEntry implements Serializable {
      * @throws IllegalArgumentException if any parameter is empty or invalid.
      */
     public WordEntry(String category, String word, String hint) {
+        this.id = UUID.randomUUID().toString();
         this.category = category;
         this.word = word;
         this.hint = hint;
     }
+    public String getId() {return id;}
+
+    public void setId(String id) {this.id = id;}
 
     public String getCategory() {
         return category;

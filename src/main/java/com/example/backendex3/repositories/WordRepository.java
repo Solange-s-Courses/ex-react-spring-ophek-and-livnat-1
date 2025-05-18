@@ -59,6 +59,23 @@ public class WordRepository {
         }
     }
 
+    /**
+     * Finds a word entry by its ID
+     *
+     * @param id The ID to search for
+     * @return The word entry if found, null otherwise
+     */
+    public WordEntry findById(String id) {
+        synchronized (words) {
+            for (WordEntry entry : words) {
+                if (entry.getId().equals(id)) {
+                    return entry;
+                }
+            }
+            return null;
+        }
+    }
+
     public List<WordEntry> findByCategory(String category) {
 
         List<WordEntry> foundWords = new ArrayList<>();
@@ -75,17 +92,16 @@ public class WordRepository {
     }
 
     /**
-     * Updates an existing word entry
+     * Updates an existing word entry by ID
      *
-     * @param oldWord The word to update (assumed to be already lowercase)
+     * @param id The ID of the word to update
      * @param updatedEntry The updated entry data
      * @return true if update was successful, false if entry wasn't found
      */
-    public boolean update(String oldWord, WordEntry updatedEntry) {
-
+    public boolean updateById(String id, WordEntry updatedEntry) {
         synchronized (words) {
             for (WordEntry entry : words) {
-                if (entry.getWord().equals(oldWord)) {
+                if (entry.getId().equals(id)) {
                     entry.updateWord(updatedEntry);
                     saveToFile();
                     return true;
@@ -94,6 +110,27 @@ public class WordRepository {
             return false;
         }
     }
+
+//    /**
+//     * Updates an existing word entry
+//     *
+//     * @param oldWord The word to update (assumed to be already lowercase)
+//     * @param updatedEntry The updated entry data
+//     * @return true if update was successful, false if entry wasn't found
+//     */
+//    public boolean update(String oldWord, WordEntry updatedEntry) {
+//
+//        synchronized (words) {
+//            for (WordEntry entry : words) {
+//                if (entry.getWord().equals(oldWord)) {
+//                    entry.updateWord(updatedEntry);
+//                    saveToFile();
+//                    return true;
+//                }
+//            }
+//            return false;
+//        }
+//    }
 
     /**
      * Returns all word entries
@@ -107,17 +144,33 @@ public class WordRepository {
     }
 
     /**
-     * Deletes a word entry
+     * Deletes a word entry by ID
      *
-     * @param word The word to delete (assumed to be already lowercase)
+     * @param id The ID of the word to delete
+     * @return true if deletion was successful, false if not found
      */
-    public void delete(String word) {
-
+    public boolean deleteById(String id) {
         synchronized (words) {
-            words.removeIf(entry -> entry.getWord().equals(word));
-            saveToFile();
+            boolean removed = words.removeIf(entry -> entry.getId().equals(id));
+            if (removed) {
+                saveToFile();
+            }
+            return removed;
         }
     }
+
+//    /**
+//     * Deletes a word entry
+//     *
+//     * @param word The word to delete (assumed to be already lowercase)
+//     */
+//    public void delete(String word) {
+//
+//        synchronized (words) {
+//            words.removeIf(entry -> entry.getWord().equals(word));
+//            saveToFile();
+//        }
+//    }
 
     /**
      * Persists the words to the file
