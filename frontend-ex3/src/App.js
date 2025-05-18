@@ -5,7 +5,7 @@ import About from "./components/About";
 import NotFound from "./components/NotFound";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './App.css';
-//import ManagePage from "./components/managePage/ManagePage";
+import ManagePage from "./components/managePage/ManagePage";
 import GamePage from "./components/gamePage/GamePage";
 
 /**
@@ -25,7 +25,7 @@ function App() {
             <Route path="/" element={<Header/>}>
               <Route index element={<HomePage/>}/>
               <Route path="/game" element={<GamePage/>}/>
-              {/*<Route path="/ManagePage" element={<ManagePage/>}/>*/}
+              <Route path="/ManagePage" element={<ManagePage/>}/>
               <Route path="/Leaderboard" element = {<LeaderboardPage/>}/>
               <Route path="/About" element={<About/>}/>
               <Route path={"*"} element={<NotFound/>}/>

@@ -38,6 +38,12 @@ export default function NavigationBar() {
                         </Nav.Item>
 
                         <Nav.Item>
+                            <Link to="/ManagePage" className={`nav-link text-dark mx-2 ${location.pathname === '/ManagePage' ? 'fw-bold' : ''}`}>
+                                Manage Words
+                            </Link>
+                        </Nav.Item>
+
+                        <Nav.Item>
                             <Link to="/Leaderboard" className={`nav-link text-dark mx-2 ${location.pathname === '/Leaderboard' ? 'fw-bold' : ''}`}>
                                 Leaderboard
                             </Link>
