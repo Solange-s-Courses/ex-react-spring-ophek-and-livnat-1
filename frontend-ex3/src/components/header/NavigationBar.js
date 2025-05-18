@@ -1,7 +1,7 @@
 
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '../../imgs/logo.png';
+import logo from '../../imgs/hangmamLogo.jpg';
 
 /**
  * Renders the main navigation bar for the Weather App.
@@ -25,7 +25,6 @@ export default function NavigationBar() {
                 <div className="d-flex align-items-center">
                     <img src={`${logo}`} alt="Logo" width="50" height="50" className="me-2" />
                     <h1 className="h5 text-dark mb-0">
-                        <i className="fa fa-book-reader me-2"></i>Hangman
                     </h1>
                 </div>
 
