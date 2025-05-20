@@ -102,6 +102,16 @@ public class WordEntryController {
         return ResponseEntity.ok(entry);
     }
 
+    @GetMapping("/word/{word}")
+    public WordEntry getEntryByWord(@PathVariable("word") final String word) {
+        WordEntry entry = wordService.getWord(word);
+        if (entry == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "No entry found for this word: " + word);
+        }
+        return entry;
+    }
+
     @GetMapping("/getCategories")
     public ResponseEntity<List<String>> getCategories() {
         List<String> categories = wordService.getCategories();
