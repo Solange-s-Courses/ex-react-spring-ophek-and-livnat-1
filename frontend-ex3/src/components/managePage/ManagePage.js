@@ -49,11 +49,17 @@ function ManagePage() {
      * @param {Object} word - The word to add
      */
     const addWord = async (word) => {
-        doAddWord({
-            url: '/wordEntry/add',
-            method: 'POST',
-            data: word
-        });
+        try {
+            doAddWord({
+                url: '/wordEntry/add',
+                method: 'POST',
+                data: word
+            });
+        }
+        catch (error) {
+            console.log("error adding word from frontend")
+        }
+
     };
 
     /**

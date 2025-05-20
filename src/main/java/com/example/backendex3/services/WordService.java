@@ -82,7 +82,7 @@ public class WordService {
         }
 
         if (wordRepository.findByWord(wordEntry.getWord().toLowerCase()) != null) {
-            throw new IllegalArgumentException("Word already exists");
+            throw new IllegalArgumentException("service: Word already exists");
         }
 
         wordEntry.setWord(wordEntry.getWord().toLowerCase());
@@ -102,6 +102,10 @@ public class WordService {
         WordEntry existingEntry = wordRepository.findById(id);
         if (existingEntry == null) {
             return null;
+        }
+
+        if (wordRepository.findByWord(updatedEntry.getWord().toLowerCase()) != null) {
+            throw new IllegalArgumentException("Word already exists- cannot update");
         }
 
         // Convert word and category to lowercase for consistency

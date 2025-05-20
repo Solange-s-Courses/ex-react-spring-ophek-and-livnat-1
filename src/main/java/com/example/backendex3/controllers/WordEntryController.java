@@ -40,9 +40,9 @@ public class WordEntryController {
     @PostMapping("/add")
     public ResponseEntity<WordEntry> addWord(@Valid @RequestBody final WordEntry entry) {
         boolean added = wordService.addWord(entry);
-        if (!added) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Word already exists");
-        }
+//        if (!added) {
+//            throw new ResponseStatusException(HttpStatus.CONFLICT, "Word already exists");
+//        }
         return ResponseEntity.ok(entry);
     }
 
@@ -60,11 +60,11 @@ public class WordEntryController {
 //        }
 //    }
     @PutMapping("/update/{id}")
-    public ResponseEntity<WordEntry> updateWord(@Valid @PathVariable("id") final String id, @RequestBody final WordEntry entry) {
+    public ResponseEntity<WordEntry> updateWord(@PathVariable("id") final String id, @Valid @RequestBody final WordEntry entry) {
         WordEntry updated = wordService.updateWordById(id, entry);
-        if (updated == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found with ID: " + id);
-        }
+//        if (updated == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found with ID: " + id);
+//        }
         return ResponseEntity.ok(updated);
     }
 
