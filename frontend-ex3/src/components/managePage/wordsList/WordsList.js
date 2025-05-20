@@ -89,8 +89,63 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false,
         setEditingWord(null);
     };
 
+    // return (
+    //     <div className="mb-5">
+    //         {alert && (
+    //             <Alert
+    //                 variant={alert.type}
+    //                 className="mb-3"
+    //                 dismissible
+    //                 onClose={handleCloseAlert}
+    //             >
+    //                 {alert.message}
+    //             </Alert>
+    //         )}
+    //
+    //         {words.length > 0 ? (
+    //             <div className="list-group">
+    //                 {words.map(word => (
+    //                     editingWord?.word === word.word ? (
+    //                         <WordEditForm
+    //                             key={word.id}
+    //                             wordEntry={word}
+    //                             updateWord={handleUpdateWord}
+    //                             cancelEditing={handleCancelEdit}
+    //                             isLoading={isUpdating}
+    //                             isError={isUpdateError}
+    //                         />
+    //                     ) : (
+    //                         <WordRow
+    //                             key={word.id}
+    //                             wordEntry={word}
+    //                             onEdit={() => handleEditWord(word)}
+    //                             onDelete={() => handleDeleteClick(word)}
+    //                             disabled={isUpdating || isDeleting || !!editingWord}
+    //                         />
+    //                     )
+    //                 ))}
+    //             </div>
+    //         ) : (
+    //             <div className="alert alert-info bg-light border-info d-flex align-items-center">
+    //                 <i className="bi bi-info-circle me-3 fs-4"></i>
+    //                 <p className="mb-0">
+    //                     No words added yet, add your first word!
+    //                 </p>
+    //             </div>
+    //         )}
+    //
+    //         <DeleteConfirmationModal
+    //             show={showDeleteModal}
+    //             WordName={wordToDelete?.word}
+    //             onClose={handleCloseDeleteModal}
+    //             onConfirm={confirmDelete}
+    //             isLoading={isDeleting}
+    //         />
+    //
+    //     </div>
+    // );
     return (
-        <div className="mb-5">
+        <div className="mb-5 pt-5">
             {alert && (
                 <Alert
                     variant={alert.type}
@@ -103,27 +158,47 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false,
             )}
 
             {words.length > 0 ? (
-                <div className="list-group">
-                    {words.map(word => (
-                        editingWord?.word === word.word ? (
-                            <WordEditForm
-                                key={word.id}
-                                wordEntry={word}
-                                updateWord={handleUpdateWord}
-                                cancelEditing={handleCancelEdit}
-                                isLoading={isUpdating}
-                                isError={isUpdateError}
-                            />
-                        ) : (
-                            <WordRow
-                                key={word.id}
-                                wordEntry={word}
-                                onEdit={() => handleEditWord(word)}
-                                onDelete={() => handleDeleteClick(word)}
-                                disabled={isUpdating || isDeleting || !!editingWord}
-                            />
-                        )
-                    ))}
+                <div className="card shadow-sm">
+                    <div className="card-header bg-white">
+                        <h5 className="mb-0">Definitions</h5>
+                    </div>
+                    <div className="table-responsive">
+                        <table className="table table-hover table-striped mb-0">
+                            <thead className="table-light">
+                            <tr>
+                                <th>Word</th>
+                                <th>Category</th>
+                                <th>Hint</th>
+                                <th className="text-end">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {words.map(word => (
+                                editingWord?.id === word.id ? (
+                                    <tr key={word.id}>
+                                        <td colSpan="4" className="p-0 border-0">
+                                            <WordEditForm
+                                                wordEntry={word}
+                                                updateWord={handleUpdateWord}
+                                                cancelEditing={handleCancelEdit}
+                                                isLoading={isUpdating}
+                                                isError={isUpdateError}
+                                            />
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    <WordRow
+                                        key={word.id}
+                                        wordEntry={word}
+                                        onEdit={() => handleEditWord(word)}
+                                        onDelete={() => handleDeleteClick(word)}
+                                        disabled={isUpdating || isDeleting || !!editingWord}
+                                    />
+                                )
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             ) : (
                 <div className="alert alert-info bg-light border-info d-flex align-items-center">
@@ -141,7 +216,6 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false,
                 onConfirm={confirmDelete}
                 isLoading={isDeleting}
             />
-
         </div>
     );
 }

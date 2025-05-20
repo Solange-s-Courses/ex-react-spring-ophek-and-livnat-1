@@ -26,8 +26,8 @@ function WordForm({ addWord, setShowForm, isLoading = false, isError = false, er
     };
 
     return (
-        <div className="add-word-form p-3 border rounded mb-2">
-            <h2>Add New Word</h2>
+        <div className="add-word-form p-3 border rounded mb-2 pt-5">
+            <h3>Add New Word Definition</h3>
 
             {isError && (
                 <Alert variant="danger" className="mb-3">
