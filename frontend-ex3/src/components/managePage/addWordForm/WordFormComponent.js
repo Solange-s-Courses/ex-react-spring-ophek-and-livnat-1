@@ -52,7 +52,7 @@ function WordFormComponent({
                 }
             }
         }
-    }, [existingWord, isCheckingWord, isError, error]);
+    }, [existingWord, isCheckingWord, isError, error]);//, formData, onSubmit]);
 
 
     /**
@@ -134,13 +134,14 @@ function WordFormComponent({
 
     return (
         <form className="card shadow-sm p-4" onSubmit={handleSubmit}>
+
             {/* Server Error Alert */}
-            {/*{errors.server && (*/}
-            {/*    <div className="alert alert-danger mb-4" role="alert">*/}
-            {/*        <i className="bi bi-exclamation-triangle-fill me-2"></i>*/}
-            {/*        {errors.server}*/}
-            {/*    </div>*/}
-            {/*)}*/}
+            {errors.server && (
+                <div className="alert alert-danger mb-4" role="alert">
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                    {errors.server}
+                </div>
+            )}
 
             {/* Word Input */}
             <div className="mb-3">
@@ -152,6 +153,7 @@ function WordFormComponent({
                     name="word"
                     value={formData.word}
                     onChange={handleChange}
+                    disabled={disabled}
                 />
                 {errors.word && (
                     <div className="invalid-feedback">
@@ -170,6 +172,7 @@ function WordFormComponent({
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
+                    disabled={disabled}
                 />
                 {errors.category && (
                     <div className="invalid-feedback">
@@ -188,6 +191,7 @@ function WordFormComponent({
                     rows="3"
                     value={formData.hint}
                     onChange={handleChange}
+                    disabled={disabled}
                 />
                 {errors.hint && (
                     <div className="invalid-feedback">
@@ -202,14 +206,14 @@ function WordFormComponent({
                     type="button"
                     className="btn btn-outline-secondary"
                     onClick={onCancel}
-                    disabled={isCheckingWord}
+                    disabled={isCheckingWord || disabled}
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
                     className="btn btn-primary"
-                    disabled={isCheckingWord}
+                    disabled={isCheckingWord ||disabled}
                 >
                     {isCheckingWord ? (
                         <>

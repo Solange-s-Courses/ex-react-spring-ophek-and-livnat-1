@@ -88,7 +88,11 @@ const useDataApi = (initialConfig = { url: '', method: 'GET', data: null, header
                 if (!didCancel) {
                     dispatch({
                         type: 'FETCH_FAILURE',
-                        payload: error.response ? error.response.data : error.message
+                       // payload: error.response ? error.response.data : error.message
+                        payload: {
+                            data: error.response ? error.response.data : error.message,
+                            status: error.response ? error.response.status : null
+                        }
                     });
                 }
             }
