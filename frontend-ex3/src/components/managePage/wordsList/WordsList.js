@@ -1,7 +1,8 @@
 import WordRow from './WordRow';
 import WordEditForm from "../addWordForm/WordEditForm";
 import DeleteConfirmationModal from './DeleteConfirmationModal';
-import {useState} from "react";
+import React, {useState} from "react";
+import {Alert} from "react-bootstrap";
 
 /**
  * WordsList component that displays and manages a list of words
@@ -12,10 +13,13 @@ import {useState} from "react";
  * @param {Function} props.deleteWord - Function to delete a word
  * @param {boolean} props.isUpdating - Whether an update operation is in progress
  * @param {boolean} props.isDeleting - Whether a delete operation is in progress
+ * @param {boolean} props.isUpdateError - Whether there was an error during update
+ * @param {boolean} props.isDeleteError - Whether there was an error during delete
  * @returns {JSX.Element} Rendered component
  * @constructor
  */
-function WordsList({ words, updateWord, deleteWord, isUpdating = false, isDeleting = false }) {
+function WordsList({ words, updateWord, deleteWord, isUpdating = false,
+                       isDeleting = false,isUpdateError = false, isDeleteError = false }) {
 
     const [editingWord, setEditingWord] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -47,7 +51,9 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false, isDeleti
 
     const handleUpdateWord = (updatedWord) => {
         updateWord(updatedWord);
-        setEditingWord(null);
+        if(!isUpdateError){
+            setEditingWord(null);
+        }
     };
 
     /**
@@ -60,6 +66,18 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false, isDeleti
 
     return (
         <div className="mb-5">
+            {isDeleteError && (
+                <Alert variant="danger" className="mb-3">
+                    Failed to delete word. Please try again.
+                </Alert>
+            )}
+
+            {isUpdateError && (
+                <Alert variant="danger" className="mb-3" >
+                    Failed to update word. Please try again.
+                </Alert>
+            )}
+
             {words.length > 0 ? (
                 <div className="list-group">
                     {words.map(word => (
@@ -70,6 +88,7 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false, isDeleti
                                 updateWord={handleUpdateWord}
                                 cancelEditing={handleCancelEdit}
                                 isLoading={isUpdating}
+                                isError={isUpdateError}
                             />
                         ) : (
                             <WordRow

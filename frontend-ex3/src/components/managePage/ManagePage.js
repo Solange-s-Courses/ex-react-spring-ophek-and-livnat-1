@@ -39,7 +39,7 @@ function ManagePage() {
     }, [updateWordState]);
 
     useEffect(() => {
-        if (deleteWordState.data && !deleteWordState.isLoading && !deleteWordState.isError) {
+        if (deleteWordState.data && !deleteWordState.isLoading ){//&& !deleteWordState.isError) {
             fetchWords({ url: '/wordEntry' });
         }
     }, [deleteWordState]);
@@ -117,6 +117,8 @@ function ManagePage() {
                                 deleteWord={deleteWord}
                                 isUpdating={updateWordState.isLoading}
                                 isDeleting={deleteWordState.isLoading}
+                                isUpdateError={updateWordState.isError}
+                                isDeleteError={deleteWordState.isError}
                             />
                         </>
                     )}

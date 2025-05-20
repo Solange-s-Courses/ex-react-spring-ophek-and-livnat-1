@@ -1,5 +1,6 @@
 import React from 'react';
 import WordFormComponent from './WordFormComponent';
+import {Alert} from 'react-bootstrap';
 
 /**
  * WordForm component for adding a new word
@@ -25,13 +26,13 @@ function WordForm({ addWord, setShowForm, isLoading = false, isError = false  })
     };
 
     return (
-        <div className="add-word-form">
+        <div className="add-word-form p-3 border rounded mb-2">
             <h2>Add New Word</h2>
 
             {isError && (
-                <div className="error-alert">
+                <Alert variant="danger" className="mb-3">
                     There was an error adding the word. Please try again.
-                </div>
+                </Alert>
             )}
             <WordFormComponent
                 initialFormState={initialFormState}
