@@ -9,7 +9,7 @@ import WordFormComponent from './WordFormComponent';
  * @param {Function} props.setShowForm - Function to control form visibility
  * @returns {JSX.Element} Rendered component
  */
-function WordForm({ addWord, setShowForm }) {
+function WordForm({ addWord, setShowForm, isLoading = false, isError = false  }) {
     const initialFormState = {
         word: '',
         category: '',
@@ -18,7 +18,6 @@ function WordForm({ addWord, setShowForm }) {
 
     const handleSubmit = (formData) => {
         addWord(formData);
-        setShowForm(false);
     };
 
     const handleCancel = () => {
@@ -28,11 +27,18 @@ function WordForm({ addWord, setShowForm }) {
     return (
         <div className="add-word-form">
             <h2>Add New Word</h2>
+
+            {isError && (
+                <div className="error-alert">
+                    There was an error adding the word. Please try again.
+                </div>
+            )}
             <WordFormComponent
                 initialFormState={initialFormState}
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
-                submitButtonText="Add"
+                submitButtonText={isLoading ? "Adding..." : "Add"}
+                disabled={isLoading}
             />
         </div>
     );

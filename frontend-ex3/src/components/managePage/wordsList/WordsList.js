@@ -4,13 +4,18 @@ import DeleteConfirmationModal from './DeleteConfirmationModal';
 import {useState} from "react";
 
 /**
- * @param words
- * @param updateWord
- * @param deleteWord
- * @returns {JSX.Element}
+ * WordsList component that displays and manages a list of words
+ *
+ * @param {Object} props - Component props
+ * @param {Array} props.words - Array of word objects to display
+ * @param {Function} props.updateWord - Function to update a word
+ * @param {Function} props.deleteWord - Function to delete a word
+ * @param {boolean} props.isUpdating - Whether an update operation is in progress
+ * @param {boolean} props.isDeleting - Whether a delete operation is in progress
+ * @returns {JSX.Element} Rendered component
  * @constructor
  */
-function WordsList({ words, updateWord, deleteWord}) {
+function WordsList({ words, updateWord, deleteWord, isUpdating = false, isDeleting = false }) {
 
     const [editingWord, setEditingWord] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -24,6 +29,7 @@ function WordsList({ words, updateWord, deleteWord}) {
 
 
     const handleCloseDeleteModal = () => {
+        if (isDeleting) return;     // Prevent closing while deletion is in progress
         setShowDeleteModal(false);
         setWordToDelete(null);
     };
@@ -40,7 +46,7 @@ function WordsList({ words, updateWord, deleteWord}) {
 
 
     const handleUpdateWord = (updatedWord) => {
-        updateWord(editingWord.id, updatedWord);
+        updateWord(updatedWord);
         setEditingWord(null);
     };
 
@@ -48,6 +54,7 @@ function WordsList({ words, updateWord, deleteWord}) {
      * Cancels the editing mode.
      */
     const handleCancelEdit = () => {
+        if (isUpdating) return; // Prevent canceling while update is in progress
         setEditingWord(null);
     };
 
@@ -62,6 +69,7 @@ function WordsList({ words, updateWord, deleteWord}) {
                                 wordEntry={word}
                                 updateWord={handleUpdateWord}
                                 cancelEditing={handleCancelEdit}
+                                isLoading={isUpdating}
                             />
                         ) : (
                             <WordRow
@@ -69,6 +77,7 @@ function WordsList({ words, updateWord, deleteWord}) {
                                 wordEntry={word}
                                 onEdit={() => handleEditWord(word)}
                                 onDelete={() => handleDeleteClick(word)}
+                                disabled={isUpdating || isDeleting || !!editingWord}
                             />
                         )
                     ))}
@@ -87,6 +96,7 @@ function WordsList({ words, updateWord, deleteWord}) {
                 WordName={wordToDelete?.word}
                 onClose={handleCloseDeleteModal}
                 onConfirm={confirmDelete}
+                isLoading={isDeleting}
             />
 
         </div>

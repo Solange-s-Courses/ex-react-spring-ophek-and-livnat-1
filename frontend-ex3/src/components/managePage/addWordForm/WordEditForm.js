@@ -8,9 +8,10 @@ import WordFormComponent from './WordFormComponent';
  * @param {Object} props.wordEntry - The word object to edit
  * @param {Function} props.updateWord - Function to update the word
  * @param {Function} props.cancelEditing - Function to cancel editing
+ * @param {boolean} props.isLoading - Whether the update operation is in progress
  * @returns {JSX.Element} Rendered component
  */
-function WordEditForm({ wordEntry, updateWord, cancelEditing }) {
+function WordEditForm({ wordEntry, updateWord, cancelEditing, isLoading = false }) {
     const handleSubmit = (formData) => {
         // Preserve the ID when updating
         updateWord({
@@ -26,7 +27,8 @@ function WordEditForm({ wordEntry, updateWord, cancelEditing }) {
                 initialFormState={wordEntry}
                 onSubmit={handleSubmit}
                 onCancel={cancelEditing}
-                submitButtonText="Save"
+                submitButtonText={isLoading ? "Saving..." : "Save"}
+                disabled={isLoading}
             />
         </div>
     );

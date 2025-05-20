@@ -14,8 +14,9 @@ function WordFormComponent({
                                initialFormState,
                                onSubmit,
                                onCancel,
-                               submitButtonText = 'Submit'
-                           }) {
+                               submitButtonText = 'Submit',
+                               disabled = false}) {
+
     const [formData, setFormData] = useState(initialFormState);
     const [errors, setErrors] = useState({});
 
@@ -88,6 +89,7 @@ function WordFormComponent({
                     value={formData.word}
                     onChange={handleChange}
                     className={errors.word ? 'error' : ''}
+                    disabled={disabled}
                 />
                 {errors.word && <span className="error-message">{errors.word}</span>}
             </div>
@@ -101,6 +103,7 @@ function WordFormComponent({
                     value={formData.category}
                     onChange={handleChange}
                     className={errors.category ? 'error' : ''}
+                    disabled={disabled}
                 />
                 {errors.category && <span className="error-message">{errors.category}</span>}
             </div>
@@ -113,18 +116,20 @@ function WordFormComponent({
                     value={formData.hint}
                     onChange={handleChange}
                     className={errors.hint ? 'error' : ''}
+                    disabled={disabled}
                 />
                 {errors.hint && <span className="error-message">{errors.hint}</span>}
             </div>
 
             <div className="form-actions">
-                <button type="submit" className="submit-btn">
+                <button type="submit" className="submit-btn" disabled={disabled}>
                     {submitButtonText}
                 </button>
                 <button
                     type="button"
                     className="cancel-btn"
                     onClick={onCancel}
+                    disabled={disabled}
                 >
                     Cancel
                 </button>
