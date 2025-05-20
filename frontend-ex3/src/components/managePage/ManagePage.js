@@ -1,11 +1,9 @@
 
-import {useState, useEffect, useReducer} from 'react';
+import {useState, useEffect} from 'react';
 import WordsList from './wordsList/WordsList';
 import WordForm from './addWordForm/WordForm';
 import AddWordButton from "./AddWordButton";
 import useDataApi from '../../customHooks/useDataApi';
-import wordsReducer, { ACTION_TYPES } from '../../customHooks/WordsReducer';
-
 /**
  * ManagePage component for managing words in the Hangman game
  * @returns {JSX.Element} The full UI to manage all words
@@ -15,50 +13,47 @@ function ManagePage() {
 
     const [showForm, setShowForm] = useState(false);
 
-    // Setup words reducer
-    const [words, dispatch] = useReducer(wordsReducer, []);
-
     // API data fetching
-    const [{ data, isLoading, isError }, fetchWords] = useDataApi(
+    const [{ data: words, isLoading, isError }, fetchWords] = useDataApi(
         { url: '/wordEntry' },
         []
     );
 
     // API operations
-    const [addWordApi, doAddWord] = useDataApi();
-    const [updateWordApi, doUpdateWord] = useDataApi();
-    const [deleteWordApi, doDeleteWord] = useDataApi();
+    const [addWordState, doAddWord] = useDataApi();
+    const [updateWordState, doUpdateWord] = useDataApi();
+    const [deleteWordState, doDeleteWord] = useDataApi();
 
-    // Initialize words from API
+    // Monitor CRUD operation states to refresh the main list when they complete
     useEffect(() => {
-        if (data && !isLoading && !isError) {
-            dispatch({ type: ACTION_TYPES.INIT_WORDS, payload: data });
+        if (addWordState.data && !addWordState.isLoading && !addWordState.isError) {
+            fetchWords({ url: '/wordEntry' });
+            setShowForm(false);
         }
-    }, [data, isLoading, isError]);
+    }, [addWordState]);
+
+    useEffect(() => {
+        if (updateWordState.data && !updateWordState.isLoading && !updateWordState.isError) {
+            fetchWords({ url: '/wordEntry' });
+        }
+    }, [updateWordState]);
+
+    useEffect(() => {
+        if (deleteWordState.data && !deleteWordState.isLoading && !deleteWordState.isError) {
+            fetchWords({ url: '/wordEntry' });
+        }
+    }, [deleteWordState]);
 
     /**
      * Adds a new word
      * @param {Object} word - The word to add
      */
     const addWord = async (word) => {
-        try {
-            doAddWord({
-                url: '/wordEntry/add',
-                method: 'POST',
-                data: word
-            });
-
-            // If the API call is successful, add to local state
-            if (!addWordApi.isError && addWordApi.data) {
-                dispatch({
-                    type: ACTION_TYPES.ADD_WORD,
-                    payload: addWordApi.data
-                });
-                setShowForm(false);
-            }
-        } catch (error) {
-            console.error("Failed to add word:", error);
-        }
+        doAddWord({
+            url: '/wordEntry/add',
+            method: 'POST',
+            data: word
+        });
     };
 
     /**
@@ -66,23 +61,11 @@ function ManagePage() {
      * @param {Object} updatedWord - The updated word data
      */
     const updateWord = async (updatedWord) => {
-        try {
-            doUpdateWord({
-                url: `/wordEntry/update/${updatedWord.id}`,
-                method: 'PUT',
-                data: updatedWord
-            });
-
-            // If the API call is successful, update local state
-            if (!updateWordApi.isError) {
-                dispatch({
-                    type: ACTION_TYPES.UPDATE_WORD,
-                    payload: updatedWord
-                });
-            }
-        } catch (error) {
-            console.error("Failed to update word:", error);
-        }
+        doUpdateWord({
+            url: `/wordEntry/update/${updatedWord.id}`,
+            method: 'PUT',
+            data: updatedWord
+        });
     };
 
     /**
@@ -90,22 +73,10 @@ function ManagePage() {
      * @param {string} wordId - The ID of the word to delete
      */
     const deleteWord = async (wordId) => {
-        try {
-            doDeleteWord({
-                url: `/wordEntry/delete/${wordId}`,
-                method: 'DELETE'
-            });
-
-            // If the API call is successful, remove from local state
-            if (!deleteWordApi.isError) {
-                dispatch({
-                    type: ACTION_TYPES.DELETE_WORD,
-                    payload: wordId
-                });
-            }
-        } catch (error) {
-            console.error("Failed to delete word:", error);
-        }
+        doDeleteWord({
+            url: `/wordEntry/delete/${wordId}`,
+            method: 'DELETE'
+        });
     };
 
 
@@ -126,6 +97,8 @@ function ManagePage() {
                         < WordForm
                             addWord={addWord}
                             setShowForm={setShowForm}
+                            isLoading={addWordState.isLoading}
+                            isError={addWordState.isError}
                         />
                     ) : (
                         <>
@@ -133,9 +106,11 @@ function ManagePage() {
                                 onClick={() => setShowForm(true)}
                             />
                             <WordsList
-                                words={words}
+                                words={words|| []}
                                 updateWord={updateWord}
                                 deleteWord={deleteWord}
+                                isUpdating={updateWordState.isLoading}
+                                isDeleting={deleteWordState.isLoading}
                             />
                         </>
                     )}
