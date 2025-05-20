@@ -10,7 +10,7 @@ import {Alert} from 'react-bootstrap';
  * @param {Function} props.setShowForm - Function to control form visibility
  * @returns {JSX.Element} Rendered component
  */
-function WordForm({ addWord, setShowForm, isLoading = false, isError = false  }) {
+function WordForm({ addWord, setShowForm, isLoading = false, isError = false, errorMessage=null}) {
     const initialFormState = {
         word: '',
         category: '',
@@ -31,7 +31,7 @@ function WordForm({ addWord, setShowForm, isLoading = false, isError = false  })
 
             {isError && (
                 <Alert variant="danger" className="mb-3">
-                    There was an error adding the word. Please try again.
+                    {errorMessage}
                 </Alert>
             )}
             <WordFormComponent

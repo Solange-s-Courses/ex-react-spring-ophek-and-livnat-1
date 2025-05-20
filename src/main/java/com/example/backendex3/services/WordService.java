@@ -82,7 +82,7 @@ public class WordService {
         }
 
         if (wordRepository.findByWord(wordEntry.getWord().toLowerCase()) != null) {
-            throw new IllegalArgumentException("service: Word already exists");
+            throw new IllegalArgumentException("Word already exists");
         }
 
         wordEntry.setWord(wordEntry.getWord().toLowerCase());
@@ -99,20 +99,23 @@ public class WordService {
      * @return The updated entry if successful, null if the word wasn't found
      */
     public WordEntry updateWordById(String id, WordEntry updatedEntry) {
+
         WordEntry existingEntry = wordRepository.findById(id);
         if (existingEntry == null) {
             return null;
         }
 
-        if (wordRepository.findByWord(updatedEntry.getWord().toLowerCase()) != null) {
-            throw new IllegalArgumentException("Word already exists- cannot update");
+        String newWord = updatedEntry.getWord().toLowerCase();
+        String existingWord = existingEntry.getWord().toLowerCase();
+
+        if (!newWord.equals(existingWord)) {
+            if ( wordRepository.findByWord(newWord) != null ) {
+                throw new IllegalArgumentException("Word already exists");
+            }
         }
 
-        // Convert word and category to lowercase for consistency
-        updatedEntry.setWord(updatedEntry.getWord().toLowerCase());
+        updatedEntry.setWord(newWord);
         updatedEntry.setCategory(updatedEntry.getCategory().toLowerCase());
-
-        // Preserve the ID
         updatedEntry.setId(id);
 
         boolean updated = wordRepository.updateById(id, updatedEntry);

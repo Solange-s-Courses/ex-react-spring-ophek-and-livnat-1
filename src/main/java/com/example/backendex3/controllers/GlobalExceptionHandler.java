@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +30,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body("Invalid input: " + e.getMessage());
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<String> handleStatusException(ResponseStatusException ex) {
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .body(ex.getReason());
+    }
+
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
@@ -41,7 +50,7 @@ public class GlobalExceptionHandler {
                         e.getMessage().contains("load") ||
                         e.getMessage().contains("deserializ"))) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Repository error: " + e.getMessage());
+                    .body(e.getMessage());
         }
 
         // Handle other runtime exceptions as general server errors
@@ -51,7 +60,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception e) {
-        return ResponseEntity.internalServerError().body("Internal server error: " + e.getMessage());
+        return ResponseEntity.internalServerError().body("Internal server error, try again later");
     }
 
 }

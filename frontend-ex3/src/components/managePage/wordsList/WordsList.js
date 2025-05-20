@@ -1,7 +1,7 @@
 import WordRow from './WordRow';
 import WordEditForm from "../addWordForm/WordEditForm";
 import DeleteConfirmationModal from './DeleteConfirmationModal';
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Alert} from "react-bootstrap";
 
 /**
@@ -19,12 +19,33 @@ import {Alert} from "react-bootstrap";
  * @constructor
  */
 function WordsList({ words, updateWord, deleteWord, isUpdating = false,
-                       isDeleting = false,isUpdateError = false, isDeleteError = false }) {
+                       isDeleting = false,isUpdateError = false, isDeleteError = false,
+                   updateErrorMessage = null, deleteErrorMessage = null}) {
 
     const [editingWord, setEditingWord] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [wordToDelete, setWordToDelete] = useState(null);
+    const [alert, setAlert] = useState(null);
 
+    // Effect for handling delete errors
+    useEffect(() => {
+        if (isDeleteError) {
+            setAlert({
+                type: "danger",
+                message: deleteErrorMessage
+            });
+        }
+    }, [isDeleteError]);
+
+    // Effect for handling update errors
+    useEffect(() => {
+        if (isUpdateError) {
+            setAlert({
+                type: "danger",
+                message: updateErrorMessage
+            });
+        }
+    }, [isUpdateError]);
 
     const handleDeleteClick = (wordEntry) => {
         setWordToDelete(wordEntry);
@@ -56,6 +77,10 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false,
         }
     };
 
+    const handleCloseAlert = () => {
+        setAlert(null);
+    }
+
     /**
      * Cancels the editing mode.
      */
@@ -66,15 +91,14 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false,
 
     return (
         <div className="mb-5">
-            {isDeleteError && (
-                <Alert variant="danger" className="mb-3">
-                    Failed to delete word. Please try again.
-                </Alert>
-            )}
-
-            {isUpdateError && (
-                <Alert variant="danger" className="mb-3" >
-                    Failed to update word. Please try again.
+            {alert && (
+                <Alert
+                    variant={alert.type}
+                    className="mb-3"
+                    dismissible
+                    onClose={handleCloseAlert}
+                >
+                    {alert.message}
                 </Alert>
             )}
 

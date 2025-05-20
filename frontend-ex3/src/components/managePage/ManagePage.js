@@ -24,22 +24,29 @@ function ManagePage() {
     const [updateWordState, doUpdateWord] = useDataApi();
     const [deleteWordState, doDeleteWord] = useDataApi();
 
-    // Monitor CRUD operation states to refresh the main list when they complete
+// Monitor CRUD operation states to refresh the main list when they complete
     useEffect(() => {
-        if (addWordState.data && !addWordState.isLoading && !addWordState.isError) {
+        if (!addWordState.isLoading) {
+            // Always fetch words when the operation completes (success or failure)
             fetchWords({ url: '/wordEntry' });
-            setShowForm(false);
+
+            // Only close the form on success
+            if (addWordState.data && !addWordState.isError) {
+                setShowForm(false);
+            }
         }
     }, [addWordState]);
 
     useEffect(() => {
-        if (updateWordState.data && !updateWordState.isLoading && !updateWordState.isError) {
+        if (!updateWordState.isLoading) {
+            // Always fetch words when the operation completes (success or failure)
             fetchWords({ url: '/wordEntry' });
         }
     }, [updateWordState]);
 
     useEffect(() => {
-        if (deleteWordState.data && !deleteWordState.isLoading ){//&& !deleteWordState.isError) {
+        if (!deleteWordState.isLoading) {
+            // Always fetch words when the operation completes (success or failure)
             fetchWords({ url: '/wordEntry' });
         }
     }, [deleteWordState]);
@@ -49,17 +56,11 @@ function ManagePage() {
      * @param {Object} word - The word to add
      */
     const addWord = async (word) => {
-        try {
-            doAddWord({
-                url: '/wordEntry/add',
-                method: 'POST',
-                data: word
-            });
-        }
-        catch (error) {
-            console.log("error adding word from frontend")
-        }
-
+        doAddWord({
+            url: '/wordEntry/add',
+            method: 'POST',
+            data: word
+        });
     };
 
     /**
@@ -105,6 +106,7 @@ function ManagePage() {
                             setShowForm={setShowForm}
                             isLoading={addWordState.isLoading}
                             isError={addWordState.isError}
+                            errorMessage={addWordState.error}
                         />
                     ) : (
                         <>
@@ -119,6 +121,8 @@ function ManagePage() {
                                 isDeleting={deleteWordState.isLoading}
                                 isUpdateError={updateWordState.isError}
                                 isDeleteError={deleteWordState.isError}
+                                updateErrorMessage = {updateWordState.error}
+                                deleteErrorMessage = {deleteWordState.error}
                             />
                         </>
                     )}

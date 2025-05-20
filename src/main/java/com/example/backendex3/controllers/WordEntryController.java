@@ -81,7 +81,7 @@ public class WordEntryController {
     public ResponseEntity<HttpStatus> deleteWord(@PathVariable("id") final String id) {
         boolean removed = wordService.removeWordById(id);
         if (!removed) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Word entry not found with ID: " + id);
+            throw new IllegalArgumentException("Word was already deleted by another user");
         }
         return ResponseEntity.ok(HttpStatus.OK);  // Success: Word deleted
     }
