@@ -22,7 +22,7 @@ function HomePage() {
     const [errorMessage, setErrorMessage] = useState('');
     const [refreshCategories, setRefreshCategories] = useState(false);
 
-    const [{ data, isLoading, isError, error }, setApiConfig] = useDataApi({ url: '' }, null);
+    const [{ data, isLoading, isError, error }, fetchWord] = useDataApi({ url: '' }, null);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -54,14 +54,15 @@ function HomePage() {
         });
 
         if (nicknameValid && categoryValid) {
-            // Set submitting state to show loading indicator
-            setIsSubmitting(true);
 
             setShowErrorModal(false);
             setErrorMessage('');
 
+            // Set submitting state to show loading indicator
+            setIsSubmitting(true);
+
             // Fetch the random word from the API
-            setApiConfig({
+            fetchWord({
                 url: `/wordEntry/getRandomWord?category=${encodeURIComponent(formData.category)}`,
                 method: 'GET'
             });
@@ -71,10 +72,10 @@ function HomePage() {
     const handleErrorModalClose = () => {
         setShowErrorModal(false);
         setErrorMessage('');
-        setIsSubmitting(false);
+        //setIsSubmitting(false);
 
         // Reset the API state by setting an empty URL
-        setApiConfig({ url: '' });
+        //setApiConfig({ url: '' });
 
         // Clear the selected category when refreshing
         setFormData((prevState) => ({
@@ -108,28 +109,70 @@ function HomePage() {
     // Effect to handle navigation after data is fetched
     useEffect(() => {
 
-        if(isSubmitting) {
-            if (!isLoading && data && !isError) {
-                // Navigate to the game page with the word and player data
-                navigate('/game', {
-                    state: {
-                        wordEntry: data,
-                        nickname: formData.nickname
-                    }
-                });
+        console.log('=== useEffect triggered ===');
+        console.log('States:', {
+            isSubmitting,
+            isLoading,
+            isError,
+            hasData: !!data,
+            showErrorModal,
+            error: error?.substring?.(0, 50) + '...' || error
+        });
 
-                // Reset submission state
-                setIsSubmitting(false);
-                // Clear the API state after successful navigation
-                setApiConfig({ url: '' });
-            } else if (!isLoading && isError && error) {
-                // Handle error case
-                setIsSubmitting(false);
-                setErrorMessage(error);
-                setShowErrorModal(true);
-            }
+        if (!isSubmitting && !data) {
+            console.log('skipping - not submitting');
+            return;
         }
-    }, [data, isLoading, isError, error, navigate, formData.nickname, isSubmitting]);
+
+        // Success case - prioritize data presence over error state
+        if (!isLoading && data) {
+            console.log('SUCCESS: Have data, navigating regardless of error state');
+
+            if (showErrorModal) {
+                setShowErrorModal(false);
+                setErrorMessage('');
+            }
+            navigate('/game', {
+                state: {
+                    wordEntry: data,
+                    nickname: formData.nickname
+                }
+            });
+
+            setIsSubmitting(false);
+            return;
+        }
+        // Only show error if we have no data AND there's an error
+        if (!isLoading && !data && isError && isSubmitting && !showErrorModal) {
+            console.log('ERROR: No data and error present');
+
+            setIsSubmitting(false);
+            setErrorMessage(error);
+            setShowErrorModal(true);
+        }
+
+        // //if(isSubmitting) {
+        //     if (!isLoading && data && !isError) {
+        //         // Navigate to the game page with the word and player data
+        //         navigate('/game', {
+        //             state: {
+        //                 wordEntry: data,
+        //                 nickname: formData.nickname
+        //             }
+        //         });
+        //
+        //         // Reset submission state
+        //         setIsSubmitting(false);
+        //         // Clear the API state after successful navigation
+        //         setApiConfig({ url: '' });
+        //     } else if (!isLoading && isError && error) {
+        //         // Handle error case
+        //         setIsSubmitting(false);
+        //         setErrorMessage(error);
+        //         setShowErrorModal(true);
+        //     }
+
+    }, [data, isLoading, isError, error, navigate, formData.nickname, isSubmitting, showErrorModal]);
 
     return (
         <div className="min-vh-100 py-5 bg-info bg-opacity-25">
@@ -324,9 +367,6 @@ function HomePage() {
                             <div className="text-center mb-3">
                                 <div className="display-1 text-danger mb-3">😵</div>
                                 <p className="fs-5 mb-3">{errorMessage}</p>
-                                <p className="text-muted">
-                                    Don't worry! We'll refresh the categories for you and you can try again.
-                                </p>
                             </div>
                         </div>
                         <div className="modal-footer border-0 justify-content-center">
