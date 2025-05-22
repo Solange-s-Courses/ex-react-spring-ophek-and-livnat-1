@@ -26,6 +26,7 @@ function HomePage() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+
         setFormData(prevState => ({
             ...prevState,
             [name]: value
@@ -67,27 +68,40 @@ function HomePage() {
     const handleErrorModalClose = () => {
         setShowErrorModal(false);
         setErrorMessage('');
+        setIsSubmitting(false);
+
+        // Clear the selected category when refreshing
+        setFormData((prevState) => ({
+            ...prevState,
+            category: ''
+        }));
+
+        // Clear category validation state
+        setValidation((prev) => ({
+            ...prev,
+            category: null
+        }));
+
+        // // Clear the selected category when refreshing
+        // setFormData({
+        //     ...formData,
+        //     category: ''
+        // });
+        //
+        // // Clear category validation state
+        // setValidation({
+        //     ...validation,
+        //     category: null
+        // });
 
         // Trigger categories refresh by toggling the boolean
         setRefreshCategories(prev => !prev);
-
-        // Clear the selected category when refreshing
-        setFormData({
-            ...formData,
-            category: ''
-        });
-
-        // Clear category validation state
-        setValidation({
-            ...validation,
-            category: null
-        });
-
     };
 
 
     // Effect to handle navigation after data is fetched
     useEffect(() => {
+
         if (!isLoading && data && !isError && isSubmitting) {
             // Navigate to the game page with the word and player data
             navigate('/game', {
@@ -99,13 +113,15 @@ function HomePage() {
 
             // Reset submission state
             setIsSubmitting(false);
-        } else if (!isLoading && isError && isSubmitting) {
+
+        }
+        else if (!isLoading && isError && isSubmitting && !showErrorModal) {
             // Handle error case
             setIsSubmitting(false);
             setErrorMessage(error);
             setShowErrorModal(true);
         }
-    }, [data, isLoading, isError, navigate, formData, isSubmitting]);
+    }, [data, isLoading, isError, error, navigate, formData.nickname, isSubmitting, showErrorModal]);
 
     return (
         <div className="min-vh-100 py-5 bg-info bg-opacity-25">
