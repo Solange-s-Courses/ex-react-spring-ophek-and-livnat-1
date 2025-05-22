@@ -60,8 +60,8 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false,
     };
 
     const confirmDelete = () => {
-        deleteWord(wordToDelete.id);
         setShowDeleteModal(false);
+        deleteWord(wordToDelete.id);
         setWordToDelete(null);
     };
 
@@ -209,13 +209,16 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false,
                 </div>
             )}
 
-            <DeleteConfirmationModal
-                show={showDeleteModal}
-                wordName={wordToDelete?.word}
-                onClose={handleCloseDeleteModal}
-                onConfirm={confirmDelete}
-                isLoading={isDeleting}
-            />
+            {showDeleteModal && (
+                <DeleteConfirmationModal
+                    show={showDeleteModal}
+                    wordName={wordToDelete?.word}
+                    onClose={handleCloseDeleteModal}
+                    onConfirm={confirmDelete}
+                    isLoading={isDeleting}
+                />
+            )}
+
         </div>
     );
 }
