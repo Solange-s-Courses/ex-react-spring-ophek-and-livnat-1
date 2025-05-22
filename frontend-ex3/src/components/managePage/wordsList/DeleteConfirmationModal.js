@@ -21,7 +21,7 @@ const DeleteConfirmationModal = ({ show, wordName, onClose, onConfirm, isLoading
                 <Modal.Title>Delete Confirmation</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                Are you sure you want to delete {wordName}?
+                {`Are you sure you want to delete ${wordName}?`}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onClose} disabled={isLoading}>

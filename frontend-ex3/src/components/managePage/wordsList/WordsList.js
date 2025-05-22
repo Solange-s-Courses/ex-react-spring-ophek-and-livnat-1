@@ -211,7 +211,7 @@ function WordsList({ words, updateWord, deleteWord, isUpdating = false,
 
             <DeleteConfirmationModal
                 show={showDeleteModal}
-                WordName={wordToDelete?.word}
+                wordName={wordToDelete?.word}
                 onClose={handleCloseDeleteModal}
                 onConfirm={confirmDelete}
                 isLoading={isDeleting}
