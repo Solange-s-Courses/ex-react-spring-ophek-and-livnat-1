@@ -1,5 +1,6 @@
 
 import {useState, useEffect} from 'react';
+import {Alert} from 'react-bootstrap';
 import WordsList from './wordsList/WordsList';
 import WordForm from './addWordForm/WordForm';
 import AddWordButton from "./AddWordButton";
@@ -12,6 +13,7 @@ import useDataApi from '../../customHooks/useDataApi';
 function ManagePage() {
 
     const [showForm, setShowForm] = useState(false);
+    const [globalError, setGlobalError] = useState(null);
 
     // API data fetching
     const [{ data: words, isLoading, isError }, fetchWords] = useDataApi(
@@ -24,29 +26,60 @@ function ManagePage() {
     const [updateWordState, doUpdateWord] = useDataApi();
     const [deleteWordState, doDeleteWord] = useDataApi();
 
-// Monitor CRUD operation states to refresh the main list when they complete
+    // Helper function to close all modals/forms and show error
+    const handleOperationError = (operation, errorMessage) => {
+        setShowForm(false); // Close add form if open
+        // WordsList will handle closing edit forms and delete modals via props
+        setGlobalError({
+            operation,
+            message: errorMessage || 'An unexpected error occurred. Please try again.'
+        });
+    };
+
+    const getErrorTitle = (operation) => {
+        switch (operation) {
+            case 'add': return 'Failed to Add Word';
+            case 'update': return 'Failed to Update Word';
+            case 'delete': return 'Failed to Delete Word';
+            default: return 'Operation Failed';
+        }
+    };
+
+
+    // Monitor CRUD operation states to refresh the main list when they complete
     useEffect(() => {
         if (!addWordState.isLoading) {
-            // Always fetch words when the operation completes (success or failure)
-            fetchWords({ url: '/wordEntry' });
-
-            // Only close the form on success
-            if (addWordState.data && !addWordState.isError) {
+            if (addWordState.isError) {
+                handleOperationError('add', addWordState.error);
+            } else if (addWordState.data) {
+                // Success - close form and refresh list
                 setShowForm(false);
+                //fetchWords({ url: '/wordEntry' });
             }
+            fetchWords({ url: '/wordEntry' });
         }
     }, [addWordState]);
 
     useEffect(() => {
         if (!updateWordState.isLoading) {
-            // Always fetch words when the operation completes (success or failure)
+            if (updateWordState.isError) {
+                handleOperationError('update', updateWordState.error);
+            } else if (updateWordState.data) {
+                // Success - refresh list
+                //fetchWords({ url: '/wordEntry' });
+            }
             fetchWords({ url: '/wordEntry' });
         }
     }, [updateWordState]);
 
     useEffect(() => {
         if (!deleteWordState.isLoading) {
-            // Always fetch words when the operation completes (success or failure)
+            if (deleteWordState.isError) {
+                handleOperationError('delete', deleteWordState.error);
+            } else if (deleteWordState.data) {
+                // Success - refresh list
+                //fetchWords({ url: '/wordEntry' });
+            }
             fetchWords({ url: '/wordEntry' });
         }
     }, [deleteWordState]);
@@ -56,6 +89,7 @@ function ManagePage() {
      * @param {Object} word - The word to add
      */
     const addWord = async (word) => {
+        setGlobalError(null); // Clear any existing errors
         doAddWord({
             url: '/wordEntry/add',
             method: 'POST',
@@ -68,6 +102,7 @@ function ManagePage() {
      * @param {Object} updatedWord - The updated word data
      */
     const updateWord = async (updatedWord) => {
+        setGlobalError(null); // Clear any existing errors
         doUpdateWord({
             url: `/wordEntry/update/${updatedWord.id}`,
             method: 'PUT',
@@ -80,10 +115,15 @@ function ManagePage() {
      * @param {string} wordId - The ID of the word to delete
      */
     const deleteWord = async (wordId) => {
+        setGlobalError(null); // Clear any existing errors
         doDeleteWord({
             url: `/wordEntry/delete/${wordId}`,
             method: 'DELETE'
         });
+    };
+
+    const handleCloseGlobalError = () => {
+        setGlobalError(null);
     };
 
     return (
@@ -94,6 +134,19 @@ function ManagePage() {
                         <div className="text-center mb-4">
                             <h1>Manage Words</h1>
                         </div>
+
+                        {/* Global Error Alert */}
+                        {globalError && (
+                            <Alert
+                                variant="danger"
+                                className="mb-4"
+                                dismissible
+                                onClose={handleCloseGlobalError}
+                            >
+                                <Alert.Heading>{getErrorTitle(globalError.operation)}</Alert.Heading>
+                                <p className="mb-0">{globalError.message}</p>
+                            </Alert>
+                        )}
 
                         {isLoading ? (
                             <div className="d-flex justify-content-center">
@@ -118,8 +171,6 @@ function ManagePage() {
                                         addWord={addWord}
                                         setShowForm={setShowForm}
                                         isLoading={addWordState.isLoading}
-                                        isError={addWordState.isError}
-                                        errorMessage={addWordState.error}
                                     />
                                 ) : (
                                     <>
@@ -129,10 +180,7 @@ function ManagePage() {
                                             deleteWord={deleteWord}
                                             isUpdating={updateWordState.isLoading}
                                             isDeleting={deleteWordState.isLoading}
-                                            isUpdateError={updateWordState.isError}
-                                            isDeleteError={deleteWordState.isError}
-                                            updateErrorMessage={updateWordState.error}
-                                            deleteErrorMessage={deleteWordState.error}
+                                            forceCloseModals={!!globalError}
                                         />
                                         <AddWordButton
                                             onClick={() => setShowForm(true)}
@@ -146,49 +194,6 @@ function ManagePage() {
             </div>
         </div>
     );
-    // return (
-    //     <div className="min-vh-100 py-5 bg-info bg-opacity-25">
-    //         <h1>Manage Words</h1>
-    //
-    //         {isLoading ? (
-    //             <p>Loading words...</p>
-    //         ) : isError ? (
-    //             <div>
-    //                 <p>Error loading words. Please try again.</p>
-    //                 <button onClick={() => fetchWords({ url: '/wordEntry' })}>Retry</button>
-    //             </div>
-    //         ) : (
-    //             <>
-    //                 { showForm ? (
-    //                     < WordForm
-    //                         addWord={addWord}
-    //                         setShowForm={setShowForm}
-    //                         isLoading={addWordState.isLoading}
-    //                         isError={addWordState.isError}
-    //                         errorMessage={addWordState.error}
-    //                     />
-    //                 ) : (
-    //                     <>
-    //                         <WordsList
-    //                             words={words|| []}
-    //                             updateWord={updateWord}
-    //                             deleteWord={deleteWord}
-    //                             isUpdating={updateWordState.isLoading}
-    //                             isDeleting={deleteWordState.isLoading}
-    //                             isUpdateError={updateWordState.isError}
-    //                             isDeleteError={deleteWordState.isError}
-    //                             updateErrorMessage = {updateWordState.error}
-    //                             deleteErrorMessage = {deleteWordState.error}
-    //                         />
-    //                         <AddWordButton
-    //                             onClick={() => setShowForm(true)}
-    //                         />
-    //                     </>
-    //                 )}
-    //             </>
-    //         )}
-    //     </div>
-    // );
 }
 
 export default ManagePage;

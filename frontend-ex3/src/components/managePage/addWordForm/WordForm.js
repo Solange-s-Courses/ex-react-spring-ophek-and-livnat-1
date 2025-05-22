@@ -1,6 +1,5 @@
 import React from 'react';
 import WordFormComponent from './WordFormComponent';
-import {Alert} from 'react-bootstrap';
 
 /**
  * WordForm component for adding a new word
@@ -10,7 +9,7 @@ import {Alert} from 'react-bootstrap';
  * @param {Function} props.setShowForm - Function to control form visibility
  * @returns {JSX.Element} Rendered component
  */
-function WordForm({ addWord, setShowForm, isLoading = false, isError = false, errorMessage=null}) {
+function WordForm({ addWord, setShowForm, isLoading = false}) {
     const initialFormState = {
         word: '',
         category: '',
@@ -29,11 +28,6 @@ function WordForm({ addWord, setShowForm, isLoading = false, isError = false, er
         <div className="add-word-form p-3 border rounded mb-2 pt-5">
             <h3>Add New Word Definition</h3>
 
-            {/*{isError && (*/}
-            {/*    <Alert variant="danger" className="mb-3">*/}
-            {/*        {errorMessage}*/}
-            {/*    </Alert>*/}
-            {/*)}*/}
             <WordFormComponent
                 initialFormState={initialFormState}
                 onSubmit={handleSubmit}
