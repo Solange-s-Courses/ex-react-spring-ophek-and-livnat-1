@@ -12,10 +12,12 @@ import useFetchCategories from '../../customHooks/useFetchCategories';
  * @param {boolean|null} props.isValid - Validation state (true, false, or null).
  * @param {string} props.id - HTML id for accessibility.
  * @param {boolean} props.disabled - Whether the dropdown is disabled.
+ * @param {boolean} props.refreshTrigger - Trigger to refresh categories when toggled.
  * @returns {JSX.Element}
  */
-function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false }) {
-    const { categories, loading, error } = useFetchCategories();
+function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false, refreshTrigger = false }) {
+
+    const { categories, loading, error } = useFetchCategories(refreshTrigger);
 
     // Handle error state
     const errorMessage = error ? 'Failed to load categories' : null;

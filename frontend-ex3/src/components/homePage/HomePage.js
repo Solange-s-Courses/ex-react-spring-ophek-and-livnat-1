@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CategoriesDropdown from './CategoriesDropdown'; // Update the path as needed
-import useDataApi from '../../customHooks/useDataApi'; // Update path as needed
+import CategoriesDropdown from './CategoriesDropdown';
+import useDataApi from '../../customHooks/useDataApi';
 
 function HomePage() {
     const navigate = useNavigate();
@@ -18,8 +18,11 @@ function HomePage() {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [refreshCategories, setRefreshCategories] = useState(false);
 
-    const [{ data, isLoading, isError }, fetchWord] = useDataApi({}, null);
+    const [{ data, isLoading, isError, error }, fetchWord] = useDataApi({}, null);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -61,6 +64,28 @@ function HomePage() {
         }
     };
 
+    const handleErrorModalClose = () => {
+        setShowErrorModal(false);
+        setErrorMessage('');
+
+        // Trigger categories refresh by toggling the boolean
+        setRefreshCategories(prev => !prev);
+
+        // Clear the selected category when refreshing
+        setFormData({
+            ...formData,
+            category: ''
+        });
+
+        // Clear category validation state
+        setValidation({
+            ...validation,
+            category: null
+        });
+
+    };
+
+
     // Effect to handle navigation after data is fetched
     useEffect(() => {
         if (!isLoading && data && !isError && isSubmitting) {
@@ -77,7 +102,8 @@ function HomePage() {
         } else if (!isLoading && isError && isSubmitting) {
             // Handle error case
             setIsSubmitting(false);
-            alert('Failed to fetch a word. Please try again.');
+            setErrorMessage(error);
+            setShowErrorModal(true);
         }
     }, [data, isLoading, isError, navigate, formData, isSubmitting]);
 
@@ -201,6 +227,7 @@ function HomePage() {
                                             value={formData.category}
                                             isValid={validation.category}
                                             disabled={isSubmitting}
+                                            refreshTrigger={refreshCategories}
                                             className={`form-select form-select-lg text-dark ${
                                                 validation.category === false
                                                     ? 'is-invalid'
@@ -247,6 +274,55 @@ function HomePage() {
                     <p>© {new Date().getFullYear()} Hangman Game | Made with ❤️ for word lovers</p>
                 </div>
             </div>
+
+
+            {/* Error Modal */}
+            <div className={`modal fade ${showErrorModal ? 'show' : ''}`}
+                 style={{ display: showErrorModal ? 'block' : 'none' }}
+                 tabIndex="-1"
+                 aria-labelledby="errorModalLabel"
+                 aria-hidden={!showErrorModal}>
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content border-0 shadow-lg">
+                        <div className="modal-header bg-danger text-white border-0">
+                            <h5 className="modal-title" id="errorModalLabel">
+                                <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                                Oops! Something went wrong
+                            </h5>
+                            <button
+                                type="button"
+                                className="btn-close btn-close-white"
+                                onClick={handleErrorModalClose}
+                                aria-label="Close">
+                            </button>
+                        </div>
+                        <div className="modal-body p-4">
+                            <div className="text-center mb-3">
+                                <div className="display-1 text-danger mb-3">😵</div>
+                                <p className="fs-5 mb-3">{errorMessage}</p>
+                                <p className="text-muted">
+                                    Don't worry! We'll refresh the categories for you and you can try again.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="modal-footer border-0 justify-content-center">
+                            <button
+                                type="button"
+                                className="btn btn-success btn-lg px-4"
+                                onClick={handleErrorModalClose}>
+                                <i className="bi bi-arrow-clockwise me-2"></i>
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Modal Backdrop */}
+            {showErrorModal && (
+                <div className="modal-backdrop fade show" onClick={handleErrorModalClose}></div>
+            )}
+
         </div>
     );
 
