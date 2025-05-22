@@ -22,37 +22,64 @@ function WordFormComponent({
     const [errors, setErrors] = useState({});
 
     // API check for existing word
-    const [{ data: existingWord, isLoading: isCheckingWord, isError, error }, checkWordExists] = useDataApi(
+    const [{ data: validationResult, isLoading: isCheckingWord, isError, error }, checkWordExists] = useDataApi(
         { url: '' },
         null
     );
 
+    // // Effect to handle word uniqueness check results
+    // useEffect(() => {
+    //     // Only process completed API calls
+    //     if (!isCheckingWord && (existingWord !== null || isError)) {
+    //         // If we got a successful response with data, the word exists
+    //         if (existingWord && !isError) {
+    //             setErrors(prev => ({
+    //                 ...prev,
+    //                 word: 'This word already exists'
+    //             }));
+    //         }
+    //         // If there was an error, check if it's a 404 (word not found) or a server error
+    //         else if (isError) {
+    //             if (error && error.status === 404) {
+    //                 // 404 means word doesn't exist, so can be added
+    //                 onSubmit(formData);
+    //             } else {
+    //                 // Any other error is a server error
+    //                 setErrors(prev => ({
+    //                     ...prev,
+    //                     server: 'Server error, please try again later'
+    //                 }));
+    //             }
+    //         }
+    //     }
+    // }, [existingWord, isCheckingWord, isError, error]);//, formData, onSubmit]);
+    //
+
     // Effect to handle word uniqueness check results
     useEffect(() => {
         // Only process completed API calls
-        if (!isCheckingWord && (existingWord !== null || isError)) {
-            // If we got a successful response with data, the word exists
-            if (existingWord && !isError) {
+        if (!isCheckingWord && (validationResult !== null || isError)) {
+            if (isError) {
+                // Any error is a real server error
                 setErrors(prev => ({
                     ...prev,
-                    word: 'This word already exists'
+                    server: 'Server error, please try again later'
                 }));
-            }
-            // If there was an error, check if it's a 404 (word not found) or a server error
-            else if (isError) {
-                if (error && error.status === 404) {
-                    // 404 means word doesn't exist, so can be added
-                    onSubmit(formData);
-                } else {
-                    // Any other error is a server error
+            } else if (validationResult) {
+                // Check the validation result
+                if (validationResult.exists) {
+                    // Word already exists
                     setErrors(prev => ({
                         ...prev,
-                        server: 'Server error, please try again later'
+                        word: 'This word already exists'
                     }));
+                } else {
+                    // Word doesn't exist, can proceed with submission
+                    onSubmit(formData);
                 }
             }
         }
-    }, [existingWord, isCheckingWord, isError, error]);//, formData, onSubmit]);
+    }, [validationResult, isCheckingWord, isError, error]);//, formData, onSubmit]);
 
 
     /**
@@ -122,7 +149,7 @@ function WordFormComponent({
             // check for uniqueness if we're adding a new word, or editing and the word value has changed
             if (!isEditing || formData.word.toLowerCase() !== initialFormState.word.toLowerCase()) {
                 checkWordExists({
-                    url: `/wordEntry/word/${formData.word}`,
+                    url: `/wordEntry/word/${formData.word}/exists`,
                     method: 'GET'
                 });
             } else {

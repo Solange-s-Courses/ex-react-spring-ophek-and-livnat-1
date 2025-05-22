@@ -29,11 +29,11 @@ function WordForm({ addWord, setShowForm, isLoading = false, isError = false, er
         <div className="add-word-form p-3 border rounded mb-2 pt-5">
             <h3>Add New Word Definition</h3>
 
-            {isError && (
-                <Alert variant="danger" className="mb-3">
-                    {errorMessage}
-                </Alert>
-            )}
+            {/*{isError && (*/}
+            {/*    <Alert variant="danger" className="mb-3">*/}
+            {/*        {errorMessage}*/}
+            {/*    </Alert>*/}
+            {/*)}*/}
             <WordFormComponent
                 initialFormState={initialFormState}
                 onSubmit={handleSubmit}

@@ -9,7 +9,9 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.backendex3.repositories.WordEntry;
 import com.example.backendex3.services.WordService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/wordEntry")
@@ -111,6 +113,15 @@ public class WordEntryController {
         }
         return entry;
     }
+
+    @GetMapping("/word/{word}/exists")
+    public ResponseEntity<Map<String, Boolean>> checkWordExists(@PathVariable("word") final String word) {
+        boolean exists = wordService.getWord(word) != null;
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/getCategories")
     public ResponseEntity<List<String>> getCategories() {

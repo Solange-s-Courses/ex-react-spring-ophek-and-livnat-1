@@ -102,7 +102,8 @@ public class WordService {
 
         WordEntry existingEntry = wordRepository.findById(id);
         if (existingEntry == null) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to update because it does not exist");
+           // return null;
         }
 
         String newWord = updatedEntry.getWord().toLowerCase();
