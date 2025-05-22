@@ -1,5 +1,5 @@
 
-import {useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Alert} from 'react-bootstrap';
 import WordsList from './wordsList/WordsList';
 import WordForm from './addWordForm/WordForm';
@@ -18,7 +18,7 @@ function ManagePage() {
     // API data fetching
     const [{ data: words, isLoading, isError }, fetchWords] = useDataApi(
         { url: '/wordEntry' },
-        []
+        null
     );
 
     // API operations
@@ -132,7 +132,7 @@ function ManagePage() {
                 <div className="row justify-content-center">
                     <div className="col-12 col-lg-10 col-xl-9">
                         <div className="text-center mb-4">
-                            <h1>Manage Words</h1>
+                            <h2 className="fw-bold">Manage Words</h2>
                         </div>
 
                         {/* Global Error Alert */}
@@ -164,7 +164,7 @@ function ManagePage() {
                                     Retry
                                 </button>
                             </div>
-                        ) : (
+                        ) : words ? (
                             <>
                                 {showForm ? (
                                     <WordForm
@@ -175,7 +175,7 @@ function ManagePage() {
                                 ) : (
                                     <>
                                         <WordsList
-                                            words={words || []}
+                                            words={words}
                                             updateWord={updateWord}
                                             deleteWord={deleteWord}
                                             isUpdating={updateWordState.isLoading}
@@ -188,7 +188,7 @@ function ManagePage() {
                                     </>
                                 )}
                             </>
-                        )}
+                        ) : null }
                     </div>
                 </div>
             </div>

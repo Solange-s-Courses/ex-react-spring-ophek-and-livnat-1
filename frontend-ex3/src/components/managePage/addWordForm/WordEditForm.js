@@ -23,7 +23,7 @@ function WordEditForm({ wordEntry, updateWord, cancelEditing, isLoading = false 
 
     return (
         <div className="edit-word-form p-3 border rounded mb-2">
-            <h2>Edit Word</h2>
+            <h4>Edit Entry</h4>
             <WordFormComponent
                 initialFormState={wordEntry}
                 onSubmit={handleSubmit}

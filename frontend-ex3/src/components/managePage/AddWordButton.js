@@ -13,7 +13,7 @@ function AddWordButton({ onClick }) {
             >
                 <div className="d-flex align-items-center justify-content-center">
                     <i className="bi bi-plus-circle me-2"></i>
-                    <span>Add New Word Definition</span>
+                    <span>Add New Word Entry</span>
                 </div>
             </button>
         </div>
