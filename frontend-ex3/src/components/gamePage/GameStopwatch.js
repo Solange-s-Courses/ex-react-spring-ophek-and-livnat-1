@@ -13,12 +13,14 @@ function GameStopwatch({ gameStatus, onTimeUpdate }) {
                     const newTime = prevTime + 10; // increment by 10ms
                     // Call parent callback if provided
                     if (onTimeUpdate) {
+                        console.log(`in GameStopWatch Timestamp: ${newTime}`);
                         onTimeUpdate(newTime);
                     }
                     return newTime;
                 });
             }, 10);
         } else {
+
             clearInterval(interval);
         }
 
