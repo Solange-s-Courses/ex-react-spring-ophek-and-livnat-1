@@ -13,7 +13,7 @@ const useFetchCategories = (refreshTrigger = false) => {
     const [categories, setCategories] = useState([]);
 
     // Use the data API hook to fetch from the backend endpoint
-    const [{ data, isLoading, isError, error }, fetchCategories] = useDataApi({}, []);
+    const [{ data, isLoading, isError, error }, fetchCategories] = useDataApi({url:''}, []);
     // Initial fetch and refresh when trigger changes
     useEffect(() => {
         fetchCategories({
