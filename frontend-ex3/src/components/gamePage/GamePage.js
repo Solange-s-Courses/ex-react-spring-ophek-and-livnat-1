@@ -133,17 +133,17 @@ function GamePage() {
         let newGameStatus = 'playing';
         if (isWon) {
             newGameStatus = 'won';
-            handleFetchScore();
-            // fetchScore({url: '/api/scores',
-            //     method: 'POST',
-            //     data: {
-            //         nickname: nickname,
-            //         timeTakenSeconds: currentTime,
-            //         attempts: gameState.failedAttempts,
-            //         usedHint: hintState.pressed,
-            //         wordLength: word.length
-            //     }
-            // });
+            //handleFetchScore();
+            fetchScore({url: '/api/sscores',
+                method: 'POST',
+                data: {
+                    nickname: nickname,
+                    timeTakenSeconds: currentTime,
+                    attempts: gameState.failedAttempts,
+                    usedHint: hintState.pressed,
+                    wordLength: word.length
+                }
+            });
         }
 
         // Update game state
@@ -204,12 +204,23 @@ function GamePage() {
                     )}
 
                     {/* Error state */}
-                    {isError && gameState.gameStatus === 'won' && (
+                    { (isError && gameState.gameStatus === 'won' && !isLoading) && (
                         <div className="alert alert-danger mb-4">
                             <p className="mb-2">Error submitting your score. Please try again.</p>
                             <button
                                 className="btn btn-outline-danger"
-                                onClick={handleFetchScore}
+                                onClick={()=> {
+                                    fetchScore({url: '/api/scores',
+                                        method: 'POST',
+                                        data: {
+                                            nickname: nickname,
+                                            timeTakenSeconds: currentTime,
+                                            attempts: gameState.failedAttempts,
+                                            usedHint: hintState.pressed,
+                                            wordLength: word.length
+                                        }
+                                    });
+                                }}
                                 disabled={isLoading}
                             >
                                 Retry
@@ -227,13 +238,14 @@ function GamePage() {
                     />)}
 
                     {/* Only show game elements when in playing state or game ended */}
-                    {(gameState.gameStatus === 'playing') && (
+                    {(gameState.gameStatus === 'playing' && !isLoading) && (
                         <>
                             {/* The stopwatch */}
                             <GameStopwatch
                                 gameStatus={gameState.gameStatus}
-                                onTimeUpdate={handleTimeUpdate}
-                                isLoading = {isLoading}
+                                //onTimeUpdate={handleTimeUpdate}
+                                onTimeUpdate={setCurrentTime}
+                                //isLoading = {isLoading}
                             />
 
                             {/* Word display */}

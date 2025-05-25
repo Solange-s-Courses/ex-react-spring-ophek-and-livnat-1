@@ -81,6 +81,8 @@ public class ScoreService {
 
         int rank = getPlayersRank(nickname);
         int leaderboardScore = getPlayersScore(rank-1);
+
+        // means we updated our score or it didn't appear
         return leaderboardScore == score;
 
     }

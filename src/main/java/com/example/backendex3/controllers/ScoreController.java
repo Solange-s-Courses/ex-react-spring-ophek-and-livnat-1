@@ -59,7 +59,7 @@ public class ScoreController {
         response.put("score", calculatedScore);
         response.put("nickname", scoreDTO.getNickname());
         response.put("rank", scoreService.getPlayersRank(scoreDTO.getNickname()));
-        response.put("status", changed);
+        response.put("status", changed); // true if score improved or added
 
         return ResponseEntity.ok(response);
     }

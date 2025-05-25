@@ -1,13 +1,30 @@
 import React, { useState, useEffect } from "react";
 
-function GameStopwatch({ gameStatus, onTimeUpdate, isLoading }) {
+function GameStopwatch({ gameStatus, onTimeUpdate }) {
     const [time, setTime] = useState(0);
+
+    // useEffect(() => {
+    //     let interval = null;
+    //
+    //     // Start timer when game is playing, stop when won
+    //     if (gameStatus === 'playing') {
+    //         interval = setInterval(() => {
+    //             setTime((prevTime) => prevTime + 10); // increment by 10ms
+    //         }, 10);
+    //     } else {
+    //         clearInterval(interval);
+    //     }
+    //
+    //     return () => {
+    //         clearInterval(interval);
+    //     };
+    // }, [gameStatus, onTimeUpdate]);
 
     useEffect(() => {
         let interval = null;
 
         // Start timer when game is playing, stop when won
-        if (gameStatus === 'playing' && !isLoading) {
+        if (gameStatus === 'playing') {
             interval = setInterval(() => {
                 setTime((prevTime) => {
                     const newTime = prevTime + 10; // increment by 10ms
@@ -19,7 +36,6 @@ function GameStopwatch({ gameStatus, onTimeUpdate, isLoading }) {
                 });
             }, 10);
         } else {
-
             clearInterval(interval);
         }
 
@@ -27,6 +43,7 @@ function GameStopwatch({ gameStatus, onTimeUpdate, isLoading }) {
             clearInterval(interval);
         };
     }, [gameStatus, onTimeUpdate]);
+
 
     // Format time for display (mm:ss.ms)
     const formatTime = (time) => {
