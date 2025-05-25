@@ -13,12 +13,19 @@ import axios from 'axios';
 const dataFetchReducer = (state, action) => {
     switch (action.type) {
         case 'FETCH_INIT':
-            return { ...state, isLoading: true, isError: false };
+            return {
+                ...state,
+                isLoading: true,
+                isError: false,
+                error: null,  // Clear previous error
+                data: null    // Clear previous data
+            };
         case 'FETCH_SUCCESS':
             return {
                 ...state,
                 isLoading: false,
                 isError: false,
+                error: null,  // Ensure error is cleared on success
                 data: action.payload,
             };
         case 'FETCH_FAILURE':
@@ -27,6 +34,7 @@ const dataFetchReducer = (state, action) => {
                 isLoading: false,
                 isError: true,
                 error: action.payload,
+                data: null,   // Clear data on failure
             };
         default:
             throw new Error();
@@ -89,10 +97,6 @@ const useDataApi = (initialConfig = { url: '', method: 'GET', data: null, header
                     dispatch({
                         type: 'FETCH_FAILURE',
                         payload: error.response ? error.response.data : error.message
-                       //  payload: {
-                       //      data: error.response ? error.response.data : error.message,
-                       //      status: error.response ? error.response.status : null
-                       //  }
                     });
                 }
             }
