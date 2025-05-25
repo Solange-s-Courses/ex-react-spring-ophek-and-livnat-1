@@ -39,7 +39,7 @@ function GamePage() {
     const [currentTime, setCurrentTime] = useState(0);
 
     // API data fetching for score
-    const [{ data, isLoading, isError}, fetchScore] = useDataApi({ url: '/api/scores' }, null);
+    const [{ data, isLoading, isError}, fetchScore] = useDataApi({ url: '' }, null);
 
     const handleHintPressed = () => {
         setHintState( {
@@ -52,7 +52,6 @@ function GamePage() {
     // Handle time update from stopwatch
     const handleTimeUpdate = (time) => {
         setCurrentTime(time);
-        console.log(`in handleTimeUpdate Current time: ${time}`);
     };
 
     // Handle letter guess
@@ -134,16 +133,17 @@ function GamePage() {
         let newGameStatus = 'playing';
         if (isWon) {
             newGameStatus = 'won';
-            fetchScore({url: '/api/scores',
-                method: 'POST',
-                data: {
-                    nickname: nickname,
-                    timeTakenSeconds: currentTime,
-                    attempts: gameState.failedAttempts,
-                    usedHint: hintState.pressed,
-                    wordLength: word.length
-                }
-            });
+            handleFetchScore();
+            // fetchScore({url: '/api/scores',
+            //     method: 'POST',
+            //     data: {
+            //         nickname: nickname,
+            //         timeTakenSeconds: currentTime,
+            //         attempts: gameState.failedAttempts,
+            //         usedHint: hintState.pressed,
+            //         wordLength: word.length
+            //     }
+            // });
         }
 
         // Update game state
@@ -157,9 +157,9 @@ function GamePage() {
         });
     };
 
-    const handleRetry = () => {
+    const handleFetchScore = () => {
         fetchScore({
-            url: '/api/scores',
+            url: '/api/sscores',
             method: 'POST',
             data: {
                 nickname: nickname,
@@ -209,7 +209,7 @@ function GamePage() {
                             <p className="mb-2">Error submitting your score. Please try again.</p>
                             <button
                                 className="btn btn-outline-danger"
-                                onClick={handleRetry}
+                                onClick={handleFetchScore}
                                 disabled={isLoading}
                             >
                                 Retry
