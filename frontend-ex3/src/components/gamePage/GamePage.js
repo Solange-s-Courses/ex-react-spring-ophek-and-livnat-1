@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import useDataApi from "../../customHooks/useDataApi";
+import EndGame from "./EndGame";
+import Keyboard from "./Keyboard";
 
 function GamePage() {
     const location = useLocation();
@@ -19,11 +22,31 @@ function GamePage() {
         word: word?.toLowerCase() || '',
         hiddenWord: word ? Array(word.length).fill('_') : [],
         guessedLetters: [],
-        remainingAttempts: 6,
-        gameStatus: 'playing' // 'playing', 'won', 'lost'
+        attemptsCounter: 0,
+        gameStatus: 'playing' // 'playing' or 'won'
     });
 
+    const [hintState, setHintState] = useState( {
+        pressed: false,
+        showHint: false
+    });
+
+    // API data fetching for score
+    const [{ data: score, isLoading, isError, error }, fetchScore] = useDataApi(
+        { url: '/api/scores' },
+        null
+    );
+
+    const handleHintPressed = () => {
+        setHintState( {
+            ...hintState,
+            pressed: true,
+            showHint: !hintState.showHint
+        });
+    }
+
     // Handle letter guess
+    // add word guessing maybe a different function
     const handleGuess = (letter) => {
         // If game is not in playing state, or letter already guessed, do nothing
         if (gameState.gameStatus !== 'playing' || gameState.guessedLetters.includes(letter)) {
@@ -34,7 +57,7 @@ function GamePage() {
         const newGuessedLetters = [...gameState.guessedLetters, letter];
 
         // Check if the letter is in the word
-        const letterInWord = gameState.word.includes(letter);
+        //const letterInWord = gameState.word.includes(letter);
 
         // Update hidden word with correctly guessed letters
         const newHiddenWord = gameState.word.split('').map((char, index) => {
@@ -44,157 +67,88 @@ function GamePage() {
             return gameState.hiddenWord[index];
         });
 
-        // Update remaining attempts if guess was wrong
-        const newRemainingAttempts = letterInWord
-            ? gameState.remainingAttempts
-            : gameState.remainingAttempts - 1;
+        // maybe change in the future
+        // // Update remaining attempts if guess was wrong
+        // const newAttemptsCounter = letterInWord
+        //     ? gameState.attemptsCounter
+        //     : gameState.attemptsCounter + 1;
 
         // Check if game is won (no more hidden letters)
         const isWon = !newHiddenWord.includes('_');
 
-        // Check if game is lost (no more attempts)
-        const isLost = newRemainingAttempts === 0;
-
         // Update game status
         let newGameStatus = 'playing';
         if (isWon) newGameStatus = 'won';
-        if (isLost) newGameStatus = 'lost';
 
         // Update game state
         setGameState({
             ...gameState,
             hiddenWord: newHiddenWord,
             guessedLetters: newGuessedLetters,
-            remainingAttempts: newRemainingAttempts,
+            attemptsCounter: gameState.attemptsCounter+1,
             gameStatus: newGameStatus
         });
     };
 
+    const handleExitGame = () => {
+        navigate('/');
+    }
+
     // Render keyboard for letter selection
-    const renderKeyboard = () => {
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+    // moved to a component
+    // const renderKeyboard = () => {
+    //     const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+    //
+    //     return (
+    //         <div className="d-flex flex-wrap justify-content-center gap-2 mb-4">
+    //             {alphabet.split('').map(letter => (
+    //                 <button
+    //                     key={letter}
+    //                     onClick={() => handleGuess(letter)}
+    //                     disabled={
+    //                         gameState.guessedLetters.includes(letter) ||
+    //                         gameState.gameStatus !== 'playing'
+    //                     }
+    //                     className={`btn rounded-3 fw-medium px-3 py-2 m-1 ${
+    //                         gameState.guessedLetters.includes(letter)
+    //                             ? gameState.word.includes(letter)
+    //                                 ? 'btn-success'
+    //                                 : 'btn-danger'
+    //                             : 'btn-outline-secondary'
+    //                     }`}
+    //                 >
+    //                     {letter.toUpperCase()}
+    //                 </button>
+    //             ))}
+    //         </div>
+    //     );
+    // };
 
-        return (
-            <div className="d-flex flex-wrap justify-content-center gap-2 mb-4">
-                {alphabet.split('').map(letter => (
-                    <button
-                        key={letter}
-                        onClick={() => handleGuess(letter)}
-                        disabled={
-                            gameState.guessedLetters.includes(letter) ||
-                            gameState.gameStatus !== 'playing'
-                        }
-                        className={`btn rounded-3 fw-medium px-3 py-2 m-1 ${
-                            gameState.guessedLetters.includes(letter)
-                                ? gameState.word.includes(letter)
-                                    ? 'btn-success'
-                                    : 'btn-danger'
-                                : 'btn-outline-secondary'
-                        }`}
-                    >
-                        {letter.toUpperCase()}
-                    </button>
-                ))}
-            </div>
-        );
-    };
+    // Game status display - moved to a component that shows the end of the game
+    // ( the add method needs to return the score - cause maybe 2 people played with the same nickname)
+    // const renderGameStatus = () => {
+    //     switch (gameState.gameStatus) {
+    //         case 'won':
+    //             return (
+    //                 <div className="text-center mb-4">
+    //                     <div className="alert alert-success p-4">
+    //                         <h3 className="fs-2 fw-bold mb-3">Congratulations, {nickname}!</h3>
+    //                         <p className="fs-4 mb-3">The word was: <span className="fw-bold">{gameState.word}</span></p>
+    //                         <button
+    //                             onClick={() => navigate('/')}
+    //                             className="btn btn-primary btn-lg mt-2 px-4"
+    //                         >
+    //                             Play Again
+    //                         </button>
+    //                     </div>
+    //                 </div>
+    //             );
+    //         default:
+    //             return null;
+    //     }
+    // };
 
-    // Render hangman figure based on remaining attempts
-    const renderHangman = () => {
-        const attemptsUsed = 6 - gameState.remainingAttempts;
-
-        return (
-            <div className="position-relative mx-auto mb-5" style={{ width: '250px', height: '250px' }}>
-                {/* Base */}
-                <div className="position-absolute bg-dark" style={{ bottom: '0', left: '50px', width: '150px', height: '4px' }}></div>
-
-                {/* Pole */}
-                <div className="position-absolute bg-dark" style={{ bottom: '0', left: '50px', width: '4px', height: '200px' }}></div>
-
-                {/* Top */}
-                <div className="position-absolute bg-dark" style={{ top: '50px', left: '50px', width: '100px', height: '4px' }}></div>
-
-                {/* Rope */}
-                <div className="position-absolute bg-dark" style={{ top: '50px', left: '150px', width: '4px', height: '30px' }}></div>
-
-                {/* Head */}
-                {attemptsUsed >= 1 && (
-                    <div className="position-absolute rounded-circle border border-dark border-3"
-                         style={{ top: '80px', left: '135px', width: '40px', height: '40px' }}></div>
-                )}
-
-                {/* Body */}
-                {attemptsUsed >= 2 && (
-                    <div className="position-absolute bg-dark"
-                         style={{ top: '120px', left: '152px', width: '4px', height: '60px' }}></div>
-                )}
-
-                {/* Left arm */}
-                {attemptsUsed >= 3 && (
-                    <div className="position-absolute bg-dark"
-                         style={{ top: '140px', left: '120px', width: '35px', height: '4px', transform: 'rotate(-45deg)' }}></div>
-                )}
-
-                {/* Right arm */}
-                {attemptsUsed >= 4 && (
-                    <div className="position-absolute bg-dark"
-                         style={{ top: '140px', left: '152px', width: '35px', height: '4px', transform: 'rotate(45deg)' }}></div>
-                )}
-
-                {/* Left leg */}
-                {attemptsUsed >= 5 && (
-                    <div className="position-absolute bg-dark"
-                         style={{ top: '180px', left: '120px', width: '35px', height: '4px', transform: 'rotate(45deg)' }}></div>
-                )}
-
-                {/* Right leg */}
-                {attemptsUsed >= 6 && (
-                    <div className="position-absolute bg-dark"
-                         style={{ top: '180px', left: '152px', width: '35px', height: '4px', transform: 'rotate(-45deg)' }}></div>
-                )}
-            </div>
-        );
-    };
-
-    // Game status display
-    const renderGameStatus = () => {
-        switch (gameState.gameStatus) {
-            case 'won':
-                return (
-                    <div className="text-center mb-4">
-                        <div className="alert alert-success p-4">
-                            <h3 className="fs-2 fw-bold mb-3">Congratulations, {nickname}!</h3>
-                            <p className="fs-4 mb-3">The word was: <span className="fw-bold">{gameState.word}</span></p>
-                            <button
-                                onClick={() => navigate('/')}
-                                className="btn btn-primary btn-lg mt-2 px-4"
-                            >
-                                Play Again
-                            </button>
-                        </div>
-                    </div>
-                );
-            case 'lost':
-                return (
-                    <div className="text-center mb-4">
-                        <div className="alert alert-danger p-4">
-                            <h3 className="fs-2 fw-bold mb-3">Game Over!</h3>
-                            <p className="fs-4 mb-3">The word was: <span className="fw-bold">{gameState.word}</span></p>
-                            <button
-                                onClick={() => navigate('/')}
-                                className="btn btn-primary btn-lg mt-2 px-4"
-                            >
-                                Try Again
-                            </button>
-                        </div>
-                    </div>
-                );
-            default:
-                return null;
-        }
-    };
-
-    // If no word data, show loading or redirect
+    // // If no word data, show loading or redirect
     if (!word || !nickname) {
         return <div className="text-center p-5">Redirecting to home page...</div>;
     }
@@ -212,19 +166,24 @@ function GamePage() {
 
                 {/* Game container */}
                 <div className="card bg-light border-0 shadow rounded-3 p-4">
+
                     {/* Display game status for special states */}
-                    {gameState.gameStatus !== 'playing' && renderGameStatus()}
+                    { (gameState.gameStatus === 'won') && (
+                    <EndGame
+                        //score = score.score
+                        //nickname = score.nickname
+                        word = {word}
+                    >
+                    </EndGame>
+                    )}
 
                     {/* Only show game elements when in playing state or game ended */}
-                    {(gameState.gameStatus === 'playing' || gameState.gameStatus === 'won' || gameState.gameStatus === 'lost') && (
+                    {(gameState.gameStatus === 'playing') && (
                         <>
-                            {/* Hangman figure */}
-                            {renderHangman()}
-
                             {/* Word display */}
                             <div className="mb-5 text-center">
                                 <div className="alert alert-info fs-5 d-inline-block px-4 py-2 mb-4">
-                                    Attempts remaining: <span className="fw-bold">{gameState.remainingAttempts}</span>
+                                    Number of Attempts: <span className="fw-bold">{gameState.attemptsCounter}</span>
                                 </div>
                                 <div className="d-flex justify-content-center gap-2 mb-2">
                                     {gameState.hiddenWord.map((char, index) => (
@@ -240,39 +199,37 @@ function GamePage() {
                             </div>
 
                             {/* Hint section - if hint exists */}
-                            {hint && (
-                                <div className="text-center mb-4">
-                                    <button
-                                        className="btn btn-outline-info"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#hintCollapse"
-                                        aria-expanded="false"
-                                        aria-controls="hintCollapse"
-                                    >
-                                        Show Hint
-                                    </button>
-                                    <div className="collapse mt-2" id="hintCollapse">
-                                        <div className="card card-body bg-light">
-                                            <p className="mb-0"><strong>Hint:</strong> {hint}</p>
-                                        </div>
+                            <div className="text-center mb-4">
+                                <button
+                                    className="btn btn-outline-info"
+                                    type="button"
+                                    onClick={handleHintPressed}
+                                >
+                                    {hintState.showHint ? 'Hide Hint' : 'Show Hint'}
+                                </button>
+                                { hintState.showHint && (
+                                    <div className="mt-2 card card-body bg-light">
+                                        <p className="mb-0"><strong>Hint:</strong> {hint}</p>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
 
-                            {/* Letter keyboard */}
-                            {renderKeyboard()}
+
+                            <Keyboard
+                                gameState={gameState}
+                                handleGuess={handleGuess}
+                            ></Keyboard>
+
+                            <div className="mt-4 text-center">
+                                <button
+                                    onClick={handleExitGame}
+                                    className="btn btn-outline-secondary mt-2"
+                                >
+                                    Exit Game
+                                </button>
+                            </div>
                         </>
                     )}
-                </div>
-
-                <div className="mt-4 text-center">
-                    <button
-                        onClick={() => navigate('/')}
-                        className="btn btn-outline-secondary mt-2"
-                    >
-                        Back to Home
-                    </button>
                 </div>
             </div>
         </div>
