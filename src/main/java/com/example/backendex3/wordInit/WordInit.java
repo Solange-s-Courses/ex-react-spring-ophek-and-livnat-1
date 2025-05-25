@@ -20,6 +20,16 @@ public class WordInit implements Serializable {
         words.add(new WordEntry("jobs", "teacher", "Works in a school"));
         words.add(new WordEntry("countries", "france", "Known for the Eiffel Tower"));
         words.add(new WordEntry("countries", "canada", "Has maple syrup"));
+        words.add(new WordEntry("vehicles", "bicycle", "Two-wheeled pedal transport"));
+        words.add(new WordEntry("vehicles", "submarine", "Underwater vessel"));
+        words.add(new WordEntry("sports", "soccer", "Played with a round ball"));
+        words.add(new WordEntry("sports", "tennis", "Played with rackets"));
+        words.add(new WordEntry("instruments", "piano", "Keyboard musical instrument"));
+        words.add(new WordEntry("instruments", "violin", "String instrument played with a bow"));
+        words.add(new WordEntry("planets", "mars", "Known as the red planet"));
+        words.add(new WordEntry("planets", "jupiter", "Largest planet in the solar system"));
+        words.add(new WordEntry("foods", "pizza", "Popular Italian dish with cheese"));
+        words.add(new WordEntry("foods", "sushi", "Japanese dish with rice and fish"));
 
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("src/main/resources/words.ser"))) {
             out.writeObject(words);
