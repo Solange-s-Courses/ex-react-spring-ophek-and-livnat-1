@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import useDataApi from "../../customHooks/useDataApi";
 import EndGame from "./EndGame";
 import Keyboard from "./Keyboard";
+import GameStopwatch from "./GameStopwatch";
 
 function GamePage() {
     const location = useLocation();
@@ -31,6 +32,9 @@ function GamePage() {
         showHint: false
     });
 
+    // Add state to track final time
+    const [finalTime, setFinalTime] = useState(0);
+
     // API data fetching for score
     const [{ data: score, isLoading, isError, error }, fetchScore] = useDataApi(
         { url: '/api/scores' },
@@ -44,6 +48,14 @@ function GamePage() {
             showHint: !hintState.showHint
         });
     }
+
+    // Handle time update from stopwatch
+    const handleTimeUpdate = (time) => {
+        if (gameState.gameStatus === 'won') {
+            setFinalTime(time);
+        }
+    };
+
 
     // Handle letter guess
     // add word guessing maybe a different function
@@ -180,6 +192,12 @@ function GamePage() {
                     {/* Only show game elements when in playing state or game ended */}
                     {(gameState.gameStatus === 'playing') && (
                         <>
+                            {/* The stopwatch */}
+                            <GameStopwatch
+                                gameStatus={gameState.gameStatus}
+                                onTimeUpdate={handleTimeUpdate}
+                            />
+
                             {/* Word display */}
                             <div className="mb-5 text-center">
                                 <div className="alert alert-info fs-5 d-inline-block px-4 py-2 mb-4">
