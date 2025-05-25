@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useDataApi from "../../customHooks/useDataApi";
 import EndGame from "./EndGame";
@@ -27,139 +27,24 @@ function GamePage() {
         guessedLetters: [],
         attemptsCounter: 0,
         failedAttempts: 0,
-        gameStatus: 'playing' // 'playing' or 'won'
+        gameStatus: 'playing' // 'playing', 'won', 'submitting-score'
     });
 
-    const [hintState, setHintState] = useState( {
+    const [hintState, setHintState] = useState({
         pressed: false,
         showHint: false
     });
 
-    // Add state to track current time from stopwatch
     const [currentTime, setCurrentTime] = useState(0);
 
-    // API data fetching for score
-    const [{ data, isLoading, isError}, fetchScore] = useDataApi({ url: '' }, null);
+    // API data fetching for score - start with empty URL to prevent initial fetch
+    const [scoreState, setScoreConfig] = useDataApi({ url: '' }, null);
+    const { data: scoreData, isLoading: isSubmitting, isError: hasSubmitError } = scoreState;
 
-    const handleHintPressed = () => {
-        setHintState( {
-            ...hintState,
-            pressed: true,
-            showHint: !hintState.showHint
-        });
-    }
-
-    // Handle time update from stopwatch
-    const handleTimeUpdate = (time) => {
-        setCurrentTime(time);
-    };
-
-    // Handle letter guess
-    const handleGuess = (letter) => {
-        // If game is not in playing state, or letter already guessed, do nothing
-        if (gameState.gameStatus !== 'playing' || gameState.guessedLetters.includes(letter)) {
-            return;
-        }
-
-        // Add letter to guessed letters
-        const newGuessedLetters = [...gameState.guessedLetters, letter];
-
-        // Check if the letter is in the word
-        const letterInWord = gameState.word.includes(letter);
-
-        // Update hidden word with correctly guessed letters
-        const newHiddenWord = gameState.word.split('').map((char, index) => {
-            if (newGuessedLetters.includes(char) || char === ' ') {
-                return char;
-            }
-            return gameState.hiddenWord[index];
-        });
-
-        // Update remaining attempts if guess was wrong
-        const newFailedAttempts = letterInWord
-            ? gameState.failedAttempts
-            : gameState.failedAttempts + 1;
-
-        handleStateAfterGuess(newHiddenWord,newGuessedLetters,
-            gameState.attemptsCounter + 1,newFailedAttempts);
-    };
-
-    //Handle word guess
-    const handleWordGuess = (guessedWord) => {
-        // If game is not in playing state, do nothing
-        if (gameState.gameStatus !== 'playing') {
-            return;
-        }
-
-        // Check if the guessed word is exactly correct
-        if (guessedWord === gameState.word) {
-            // If correct, reveal the entire word and win the game
-            setGameState({
-                ...gameState,
-                hiddenWord: gameState.word.split(''),
-                attemptsCounter: gameState.attemptsCounter + 1,
-                gameStatus: 'won'
-            });
-            return;
-        }
-
-        // If word guess is wrong, extract all unique letters from the guessed word
-        const lettersInGuess = [...new Set(guessedWord.split('').filter(char => char !== ' '))];
-
-        // Add these letters to guessed letters (only new ones)
-        const newGuessedLetters = [...new Set([...gameState.guessedLetters, ...lettersInGuess])];
-
-        let newFailedAttempts = gameState.failedAttempts;
-
-        // Update hidden word with any correctly guessed letters
-        const newHiddenWord = gameState.word.split('').map((char, index) => {
-            if (newGuessedLetters.includes(char) || char === ' ') {
-                return char;
-            }
-            newFailedAttempts ++;
-            return gameState.hiddenWord[index];
-        });
-
-        handleStateAfterGuess(newHiddenWord,newGuessedLetters,
-                              gameState.attemptsCounter + 1,newFailedAttempts);
-    };
-
-    const handleStateAfterGuess = (newHiddenWord,newGuessedLetters,attemptsCounter,failedAttempts) => {
-
-        // Check if game is won (no more hidden letters)
-        const isWon = !newHiddenWord.includes('_');
-
-        // Update game status
-        let newGameStatus = 'playing';
-        if (isWon) {
-            newGameStatus = 'won';
-            //handleFetchScore();
-            fetchScore({url: '/api/sscores',
-                method: 'POST',
-                data: {
-                    nickname: nickname,
-                    timeTakenSeconds: currentTime,
-                    attempts: gameState.failedAttempts,
-                    usedHint: hintState.pressed,
-                    wordLength: word.length
-                }
-            });
-        }
-
-        // Update game state
-        setGameState({
-            ...gameState,
-            hiddenWord: newHiddenWord,
-            guessedLetters: newGuessedLetters,
-            attemptsCounter: attemptsCounter,
-            failedAttempts: failedAttempts,
-            gameStatus: newGameStatus
-        });
-    };
-
-    const handleFetchScore = () => {
-        fetchScore({
-            url: '/api/sscores',
+    // Memoized score submission function
+    const submitScore = useCallback(() => {
+        setScoreConfig({
+            url: '/api/scores',
             method: 'POST',
             data: {
                 nickname: nickname,
@@ -169,16 +54,137 @@ function GamePage() {
                 wordLength: word.length
             }
         });
-    };
+    }, [nickname, currentTime, gameState.failedAttempts, hintState.pressed, word.length, setScoreConfig]);
 
-    // const handleExitGame = () => {
-    //     navigate('/');
-    // }
+    // Handle score submission completion
+    useEffect(() => {
+        if (gameState.gameStatus === 'submitting-score' && !isSubmitting) {
+            // Score submission completed (success or failure)
+            setGameState(prevState => ({
+                ...prevState,
+                gameStatus: 'won'
+            }));
+        }
+    }, [gameState.gameStatus, isSubmitting]);
 
-    // If no word data, show loading or redirect
+    const handleHintPressed = useCallback(() => {
+        setHintState(prevState => ({
+            ...prevState,
+            pressed: true,
+            showHint: !prevState.showHint
+        }));
+    }, []);
+
+    const checkGameWon = useCallback((hiddenWord) => {
+        return !hiddenWord.includes('_');
+    }, []);
+
+    const updateGameStateAndCheckWin = useCallback((newHiddenWord, newGuessedLetters, attemptsCounter, failedAttempts) => {
+        const isWon = checkGameWon(newHiddenWord);
+
+        setGameState(prevState => ({
+            ...prevState,
+            hiddenWord: newHiddenWord,
+            guessedLetters: newGuessedLetters,
+            attemptsCounter: attemptsCounter,
+            failedAttempts: failedAttempts,
+            gameStatus: isWon ? 'submitting-score' : 'playing'
+        }));
+
+        // If won, trigger score submission
+        if (isWon) {
+            // Use setTimeout to ensure state update completes first
+            setTimeout(submitScore, 0);
+        }
+    }, [checkGameWon, submitScore]);
+
+    const handleGuess = useCallback((letter) => {
+        // Prevent actions during non-playing states
+        if (gameState.gameStatus !== 'playing' || gameState.guessedLetters.includes(letter)) {
+            return;
+        }
+
+        const newGuessedLetters = [...gameState.guessedLetters, letter];
+        const letterInWord = gameState.word.includes(letter);
+
+        // Update hidden word
+        const newHiddenWord = gameState.word.split('').map((char, index) => {
+            if (newGuessedLetters.includes(char) || char === ' ') {
+                return char;
+            }
+            return gameState.hiddenWord[index];
+        });
+
+        const newFailedAttempts = letterInWord
+            ? gameState.failedAttempts
+            : gameState.failedAttempts + 1;
+
+        updateGameStateAndCheckWin(
+            newHiddenWord,
+            newGuessedLetters,
+            gameState.attemptsCounter + 1,
+            newFailedAttempts
+        );
+    }, [gameState, updateGameStateAndCheckWin]);
+
+    const handleWordGuess = useCallback((guessedWord) => {
+        if (gameState.gameStatus !== 'playing') {
+            return;
+        }
+
+        // Check if word is exactly correct
+        if (guessedWord === gameState.word) {
+            const newHiddenWord = gameState.word.split('');
+
+            setGameState(prevState => ({
+                ...prevState,
+                hiddenWord: newHiddenWord,
+                attemptsCounter: prevState.attemptsCounter + 1,
+                gameStatus: 'submitting-score'
+            }));
+
+            // Trigger score submission
+            setTimeout(submitScore, 0);
+            return;
+        }
+
+        // Handle incorrect word guess
+        const lettersInGuess = [...new Set(guessedWord.split('').filter(char => char !== ' '))];
+        const newGuessedLetters = [...new Set([...gameState.guessedLetters, ...lettersInGuess])];
+
+        let newFailedAttempts = gameState.failedAttempts;
+        const newHiddenWord = gameState.word.split('').map((char, index) => {
+            if (newGuessedLetters.includes(char) || char === ' ') {
+                return char;
+            }
+            newFailedAttempts++;
+            return gameState.hiddenWord[index];
+        });
+
+        updateGameStateAndCheckWin(
+            newHiddenWord,
+            newGuessedLetters,
+            gameState.attemptsCounter + 1,
+            newFailedAttempts
+        );
+    }, [gameState, updateGameStateAndCheckWin, submitScore]);
+
+    const handleRetryScore = useCallback(() => {
+        setGameState(prevState => ({
+            ...prevState,
+            gameStatus: 'submitting-score'
+        }));
+
+        setTimeout(submitScore, 0);
+    }, [submitScore]);
+
+    // Early return if no valid data
     if (!word || !nickname) {
         return <div className="text-center p-5">Redirecting to home page...</div>;
     }
+
+    const isGameWon = gameState.gameStatus === 'won';
+    const isSubmittingScore = gameState.gameStatus === 'submitting-score' || isSubmitting;
 
     return (
         <div className="min-vh-100 py-5 bg-info bg-opacity-25">
@@ -191,64 +197,50 @@ function GamePage() {
                     </div>
                 </div>
 
-
                 <div className="card bg-light border-0 shadow rounded-3 p-4">
-
-                    {/* Loading spinner overlay */}
-                    {isLoading && (
+                    {/* Loading spinner for score submission */}
+                    {isSubmittingScore && (
                         <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-light bg-opacity-75" style={{ zIndex: 1000 }}>
-                            <div className="text-center spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
-                                <span className="visually-hidden">Loading...</span>
+                            <div className="text-center">
+                                <div className="spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <p>Submitting your score...</p>
                             </div>
                         </div>
                     )}
 
-                    {/* Error state */}
-                    { (isError && gameState.gameStatus === 'won' && !isLoading) && (
+                    {/* Error state for score submission */}
+                    {isGameWon && hasSubmitError && !isSubmitting && (
                         <div className="alert alert-danger mb-4">
                             <p className="mb-2">Error submitting your score. Please try again.</p>
                             <button
-                                className="btn btn-outline-danger"
-                                onClick={()=> {
-                                    fetchScore({url: '/api/scores',
-                                        method: 'POST',
-                                        data: {
-                                            nickname: nickname,
-                                            timeTakenSeconds: currentTime,
-                                            attempts: gameState.failedAttempts,
-                                            usedHint: hintState.pressed,
-                                            wordLength: word.length
-                                        }
-                                    });
-                                }}
-                                disabled={isLoading}
+                                className="btn btn-outline-danger me-2"
+                                onClick={handleRetryScore}
+                                disabled={isSubmitting}
                             >
                                 Retry
                             </button>
-
-                            <HomeButton buttonText="Back To Home"/>
+                            <HomeButton buttonText="Back To Home" />
                         </div>
                     )}
 
-                    {/* Display game status for special states */}
-                    { (gameState.gameStatus === 'won' && !isLoading && !isError) && (
-                    <EndGame
-                        data={data}
-                        word = {word}
-                    />)}
+                    {/* Game completion - show when won and no error */}
+                    {isGameWon && !hasSubmitError && !isSubmitting && (
+                        <EndGame
+                            data={scoreData}
+                            word={word}
+                        />
+                    )}
 
-                    {/* Only show game elements when in playing state or game ended */}
-                    {(gameState.gameStatus === 'playing' && !isLoading) && (
+                    {/* Game interface - show only during active play */}
+                    {(gameState.gameStatus === 'playing' && !isSubmitting) &&(
                         <>
-                            {/* The stopwatch */}
                             <GameStopwatch
                                 gameStatus={gameState.gameStatus}
-                                //onTimeUpdate={handleTimeUpdate}
                                 onTimeUpdate={setCurrentTime}
-                                //isLoading = {isLoading}
                             />
 
-                            {/* Word display */}
                             <div className="mb-5 text-center">
                                 <div className="alert alert-info fs-5 d-inline-block px-4 py-2 mb-4">
                                     Number of Attempts: <span className="fw-bold">{gameState.attemptsCounter}</span>
@@ -266,7 +258,7 @@ function GamePage() {
                                 </div>
                             </div>
 
-                            {/* Hint section - if hint exists */}
+                            {/* Hint section */}
                             <div className="text-center mb-4">
                                 <button
                                     className="btn btn-outline-info"
@@ -275,7 +267,7 @@ function GamePage() {
                                 >
                                     {hintState.showHint ? 'Hide Hint' : 'Show Hint'}
                                 </button>
-                                { hintState.showHint && (
+                                {hintState.showHint && (
                                     <div className="mt-2 card card-body bg-light">
                                         <p className="mb-0"><strong>Hint:</strong> {hint}</p>
                                     </div>
@@ -285,32 +277,331 @@ function GamePage() {
                             <WordGuess
                                 gameState={gameState}
                                 handleWordGuess={handleWordGuess}
-                                isLoading={isLoading}
+                                isLoading={isSubmitting}
                             />
 
                             <Keyboard
                                 gameState={gameState}
                                 handleGuess={handleGuess}
-                                isLoading={isLoading}
+                                isLoading={isSubmitting}
                             />
 
-                            {/*<div className="mt-4 text-center">*/}
-                            {/*    <button*/}
-                            {/*        onClick={handleExitGame}*/}
-                            {/*        className="btn btn-outline-secondary mt-2"*/}
-                            {/*    >*/}
-                            {/*        Exit Game*/}
-                            {/*    </button>*/}
-                            {/*</div>*/}
-                            <HomeButton buttonText="Exit Game"/>
+                            <HomeButton buttonText="Exit Game" />
                         </>
                     )}
                 </div>
-
-
             </div>
         </div>
     );
 }
 
 export default GamePage;
+
+// import React, { useState, useEffect } from 'react';
+// import { useLocation, useNavigate } from 'react-router-dom';
+// import useDataApi from "../../customHooks/useDataApi";
+// import EndGame from "./EndGame";
+// import Keyboard from "./Keyboard";
+// import WordGuess from "./WordGuess";
+// import GameStopwatch from "./GameStopwatch";
+// import HomeButton from "./HomeButton";
+//
+// function GamePage() {
+//     const location = useLocation();
+//     const navigate = useNavigate();
+//
+//     const { wordEntry, nickname } = location.state || {};
+//     const { word, category, hint } = { ...wordEntry };
+//
+//     // Redirect if no word data is available
+//     useEffect(() => {
+//         if (!word || !nickname) {
+//             navigate('/');
+//         }
+//     }, [word, nickname, navigate]);
+//
+//     const [gameState, setGameState] = useState({
+//         word: word?.toLowerCase() || '',
+//         hiddenWord: word ? Array(word.length).fill('_') : [],
+//         guessedLetters: [],
+//         attemptsCounter: 0,
+//         failedAttempts: 0,
+//         gameStatus: 'playing' // 'playing' or 'won'
+//     });
+//
+//     const [hintState, setHintState] = useState( {
+//         pressed: false,
+//         showHint: false
+//     });
+//
+//     // Add state to track current time from stopwatch
+//     const [currentTime, setCurrentTime] = useState(0);
+//
+//     // API data fetching for score
+//     const [{ data, isLoading, isError}, fetchScore] = useDataApi({ url: '' }, null);
+//
+//     const handleHintPressed = () => {
+//         setHintState( {
+//             ...hintState,
+//             pressed: true,
+//             showHint: !hintState.showHint
+//         });
+//     }
+//
+//     // Handle time update from stopwatch
+//     // const handleTimeUpdate = (time) => {
+//     //     setCurrentTime(time);
+//     // };
+//
+//     // Handle letter guess
+//     const handleGuess = (letter) => {
+//         // If game is not in playing state, or letter already guessed, do nothing
+//         if (gameState.gameStatus !== 'playing' || gameState.guessedLetters.includes(letter)) {
+//             return;
+//         }
+//
+//         // Add letter to guessed letters
+//         const newGuessedLetters = [...gameState.guessedLetters, letter];
+//
+//         // Check if the letter is in the word
+//         const letterInWord = gameState.word.includes(letter);
+//
+//         // Update hidden word with correctly guessed letters
+//         const newHiddenWord = gameState.word.split('').map((char, index) => {
+//             if (newGuessedLetters.includes(char) || char === ' ') {
+//                 return char;
+//             }
+//             return gameState.hiddenWord[index];
+//         });
+//
+//         // Update remaining attempts if guess was wrong
+//         const newFailedAttempts = letterInWord
+//             ? gameState.failedAttempts
+//             : gameState.failedAttempts + 1;
+//
+//         handleStateAfterGuess(newHiddenWord,newGuessedLetters,
+//             gameState.attemptsCounter + 1,newFailedAttempts);
+//     };
+//
+//     //Handle word guess
+//     const handleWordGuess = (guessedWord) => {
+//         // If game is not in playing state, do nothing
+//         if (gameState.gameStatus !== 'playing') {
+//             return;
+//         }
+//
+//         // Check if the guessed word is exactly correct
+//         if (guessedWord === gameState.word) {
+//             // If correct, reveal the entire word and win the game
+//             setGameState({
+//                 ...gameState,
+//                 hiddenWord: gameState.word.split(''),
+//                 attemptsCounter: gameState.attemptsCounter + 1,
+//                 gameStatus: 'won'
+//             });
+//             return;
+//         }
+//
+//         // If word guess is wrong, extract all unique letters from the guessed word
+//         const lettersInGuess = [...new Set(guessedWord.split('').filter(char => char !== ' '))];
+//
+//         // Add these letters to guessed letters (only new ones)
+//         const newGuessedLetters = [...new Set([...gameState.guessedLetters, ...lettersInGuess])];
+//
+//         let newFailedAttempts = gameState.failedAttempts;
+//
+//         // Update hidden word with any correctly guessed letters
+//         const newHiddenWord = gameState.word.split('').map((char, index) => {
+//             if (newGuessedLetters.includes(char) || char === ' ') {
+//                 return char;
+//             }
+//             newFailedAttempts ++;
+//             return gameState.hiddenWord[index];
+//         });
+//
+//         handleStateAfterGuess(newHiddenWord,newGuessedLetters,
+//             gameState.attemptsCounter + 1,newFailedAttempts);
+//     };
+//
+//     const handleStateAfterGuess = (newHiddenWord,newGuessedLetters,attemptsCounter,failedAttempts) => {
+//
+//         // Check if game is won (no more hidden letters)
+//         const isWon = !newHiddenWord.includes('_');
+//
+//         // Update game status
+//         let newGameStatus = 'playing';
+//         if (isWon) {
+//             newGameStatus = 'won';
+//             //handleFetchScore();
+//             fetchScore({url: '/api/sscores',
+//                 method: 'POST',
+//                 data: {
+//                     nickname: nickname,
+//                     timeTakenSeconds: currentTime,
+//                     attempts: gameState.failedAttempts,
+//                     usedHint: hintState.pressed,
+//                     wordLength: word.length
+//                 }
+//             });
+//         }
+//
+//         // Update game state
+//         setGameState({
+//             ...gameState,
+//             hiddenWord: newHiddenWord,
+//             guessedLetters: newGuessedLetters,
+//             attemptsCounter: attemptsCounter,
+//             failedAttempts: failedAttempts,
+//             gameStatus: newGameStatus
+//         });
+//     };
+//
+//     // const handleFetchScore = () => {
+//     //     fetchScore({
+//     //         url: '/api/sscores',
+//     //         method: 'POST',
+//     //         data: {
+//     //             nickname: nickname,
+//     //             timeTakenSeconds: currentTime,
+//     //             attempts: gameState.failedAttempts,
+//     //             usedHint: hintState.pressed,
+//     //             wordLength: word.length
+//     //         }
+//     //     });
+//     // };
+//
+//     // const handleExitGame = () => {
+//     //     navigate('/');
+//     // }
+//
+//     // If no word data, show loading or redirect
+//     if (!word || !nickname) {
+//         return <div className="text-center p-5">Redirecting to home page...</div>;
+//     }
+//
+//     return (
+//         <div className="min-vh-100 py-5 bg-info bg-opacity-25">
+//             <div className="container">
+//                 <div className="d-flex justify-content-between align-items-center mb-4">
+//                     <h1 className="display-5 fw-bold">Hangman Game</h1>
+//                     <div className="text-end">
+//                         <p className="fs-5 mb-1">Player: <span className="fw-semibold">{nickname}</span></p>
+//                         <p className="fs-5 mb-0">Category: <span className="fw-semibold">{category}</span></p>
+//                     </div>
+//                 </div>
+//
+//
+//                 <div className="card bg-light border-0 shadow rounded-3 p-4">
+//
+//                     {/* Loading spinner overlay */}
+//                     {isLoading && (
+//                         <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-light bg-opacity-75" style={{ zIndex: 1000 }}>
+//                             <div className="text-center spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
+//                                 <span className="visually-hidden">Loading...</span>
+//                             </div>
+//                         </div>
+//                     )}
+//
+//                     {/* Error state */}
+//                     { (isError && gameState.gameStatus === 'won' && !isLoading) && (
+//                         <div className="alert alert-danger mb-4">
+//                             <p className="mb-2">Error submitting your score. Please try again.</p>
+//                             <button
+//                                 className="btn btn-outline-danger"
+//                                 onClick={()=> {
+//                                     fetchScore({url: '/api/scores',
+//                                         method: 'POST',
+//                                         data: {
+//                                             nickname: nickname,
+//                                             timeTakenSeconds: currentTime,
+//                                             attempts: gameState.failedAttempts,
+//                                             usedHint: hintState.pressed,
+//                                             wordLength: word.length
+//                                         }
+//                                     });
+//                                 }}
+//                                 disabled={isLoading}
+//                             >
+//                                 Retry
+//                             </button>
+//
+//                             <HomeButton buttonText="Back To Home"/>
+//                         </div>
+//                     )}
+//
+//                     {/* Display game status for special states */}
+//                     { (gameState.gameStatus === 'won' && !isLoading && !isError) && (
+//                         <EndGame
+//                             data={data}
+//                             word = {word}
+//                         />)}
+//
+//                     {/* Only show game elements when in playing state or game ended */}
+//                     {(gameState.gameStatus === 'playing' && !isLoading) && (
+//                         <>
+//                             {/* The stopwatch */}
+//                             <GameStopwatch
+//                                 gameStatus={gameState.gameStatus}
+//                                 //onTimeUpdate={handleTimeUpdate}
+//                                 onTimeUpdate={setCurrentTime}
+//                                 //isLoading = {isLoading}
+//                             />
+//
+//                             {/* Word display */}
+//                             <div className="mb-5 text-center">
+//                                 <div className="alert alert-info fs-5 d-inline-block px-4 py-2 mb-4">
+//                                     Number of Attempts: <span className="fw-bold">{gameState.attemptsCounter}</span>
+//                                 </div>
+//                                 <div className="d-flex justify-content-center gap-2 mb-2">
+//                                     {gameState.hiddenWord.map((char, index) => (
+//                                         <div
+//                                             key={index}
+//                                             className="d-inline-block border-bottom border-2 border-dark text-center mx-1"
+//                                             style={{ width: '35px', height: '45px' }}
+//                                         >
+//                                             <span className="fs-3 fw-bold">{char !== '_' ? char : ''}</span>
+//                                         </div>
+//                                     ))}
+//                                 </div>
+//                             </div>
+//
+//                             {/* Hint section - if hint exists */}
+//                             <div className="text-center mb-4">
+//                                 <button
+//                                     className="btn btn-outline-info"
+//                                     type="button"
+//                                     onClick={handleHintPressed}
+//                                 >
+//                                     {hintState.showHint ? 'Hide Hint' : 'Show Hint'}
+//                                 </button>
+//                                 { hintState.showHint && (
+//                                     <div className="mt-2 card card-body bg-light">
+//                                         <p className="mb-0"><strong>Hint:</strong> {hint}</p>
+//                                     </div>
+//                                 )}
+//                             </div>
+//
+//                             <WordGuess
+//                                 gameState={gameState}
+//                                 handleWordGuess={handleWordGuess}
+//                                 isLoading={isLoading}
+//                             />
+//
+//                             <Keyboard
+//                                 gameState={gameState}
+//                                 handleGuess={handleGuess}
+//                                 isLoading={isLoading}
+//                             />
+//
+//                             <HomeButton buttonText="Exit Game"/>
+//                         </>
+//                     )}
+//                 </div>
+//
+//
+//             </div>
+//         </div>
+//     );
+// }
+//
+// export default GamePage;
