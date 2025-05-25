@@ -16,7 +16,7 @@ public class ScoreDTO {
     private String nickname;
 
     @Min(value = 0, message = "Time taken cannot be negative")
-    private int timeTakenSeconds;
+    private int timeTakenMS;
 
     @PositiveOrZero(message = "Attempts must be positive")
     private int attempts;
@@ -33,14 +33,14 @@ public class ScoreDTO {
      * Creates a new ScoreDTO with all game statistics
      *
      * @param nickname Player's unique nickname
-     * @param timeTakenSeconds Time taken to complete the game in seconds
+     * @param timeTakenMS Time taken to complete the game in seconds
      * @param attempts Number of attempts made by the player
      * @param usedHint Whether the player used a hint
      * @param wordLength Length of the word
      */
-    public ScoreDTO(String nickname, int timeTakenSeconds, int attempts, boolean usedHint, int wordLength) {
+    public ScoreDTO(String nickname, int timeTakenMS, int attempts, boolean usedHint, int wordLength) {
         this.nickname = nickname;
-        this.timeTakenSeconds = timeTakenSeconds;
+        this.timeTakenMS = timeTakenMS;
         this.attempts = attempts;
         this.usedHint = usedHint;
         this.wordLength = wordLength;
@@ -55,12 +55,12 @@ public class ScoreDTO {
         this.nickname = nickname;
     }
 
-    public int getTimeTakenSeconds() {
-        return timeTakenSeconds;
+    public int getTimeTakenMS() {
+        return timeTakenMS;
     }
 
-    public void setTimeTakenSeconds(int timeTakenSeconds) {
-        this.timeTakenSeconds = timeTakenSeconds;
+    public void setTimeTakenMS(int timeTakenMS) {
+        this.timeTakenMS = timeTakenMS;
     }
 
     public int getAttempts() {

@@ -25,18 +25,32 @@ public class ScoreService {
     /**
      * Calculates a player's score based on game statistics.
      *
-     * @param timeTakenSeconds Time taken to complete the game in seconds
+     * @param timeTakenMS Time taken to complete the game in seconds
      * @param attempts         Number of attempts made by the player
      * @param usedHint         Whether the player used a hint
      * @param wordLength       Length of the word
      * @return Calculated score value
      */
-    public int calculateScore(int timeTakenSeconds, int attempts, boolean usedHint, int wordLength) {
+    public int calculateScore(int timeTakenMS, int attempts, boolean usedHint, int wordLength) {
         // Base score depends on word length
         int baseScore = wordLength * 100;
 
+        // Time bonus with exponential decay
+        // Convert MS to seconds for easier calculation
+        double timeTakenSeconds = timeTakenMS / 1000.0;
+
+        // Maximum time bonus (for very fast completion)
+        int maxTimeBonus = 500;
+
+        // Decay factor - adjust this to change how quickly bonus decreases
+        double decayFactor = 0.1; // Lower = slower decay, higher = faster decay
+
+        // Exponential decay: bonus = maxBonus * e^(-decayFactor * time)
+        int timeBonus = (int) (maxTimeBonus * Math.exp(-decayFactor * timeTakenSeconds));
+
+
         // Time factor: faster is better
-        int timeBonus = Math.max(0, 500 - (timeTakenSeconds * 2));
+        //int timeBonus = Math.max(0, 500000 - (timeTakenMS * 2));
 
         // Attempts penalty: fewer attempts is better
         int attemptsPenalty = attempts * 25;
@@ -61,8 +75,14 @@ public class ScoreService {
      * @throws IOException if there's an error with file operations
      */
     public boolean savePlayerScore(String nickname, int score) throws IOException {
+
         Score scoreEntry = new Score(nickname, score);
-        return scoreRepository.saveScore(scoreEntry);
+        boolean addScore = scoreRepository.saveScore(scoreEntry);
+
+        int rank = getPlayersRank(nickname);
+        int leaderboardScore = getPlayersScore(rank-1);
+        return leaderboardScore == score;
+
     }
 
     /**
@@ -73,6 +93,22 @@ public class ScoreService {
      */
     public List<Score> getLeaderboard() throws IOException {
         return scoreRepository.getAllScores();
+    }
+
+    public int getPlayersRank(String nickname) throws IOException {
+        List<Score> scores = scoreRepository.getAllScores();
+        int i = 0;
+        for ( i = 0; i < scores.size(); i++) {
+            if (scores.get(i).getNickname().equals(nickname)) {
+                break;
+            }
+        }
+        return i + 1;
+    }
+
+    public int getPlayersScore(int index) throws IOException {
+        List<Score> scores = scoreRepository.getAllScores();
+        return scores.get(index).getScore();
     }
 
     /**

@@ -39,7 +39,7 @@ function GamePage() {
     const [currentTime, setCurrentTime] = useState(0);
 
     // API data fetching for score
-    const [{ data: score, isLoading, isError}, fetchScore] = useDataApi({ url: '/api/scores' }, null);
+    const [{ data, isLoading, isError}, fetchScore] = useDataApi({ url: '/api/scores' }, null);
 
     const handleHintPressed = () => {
         setHintState( {
@@ -134,8 +134,6 @@ function GamePage() {
         let newGameStatus = 'playing';
         if (isWon) {
             newGameStatus = 'won';
-            console.log(`Game won! Final time: ${currentTime}`);
-
             fetchScore({url: '/api/scores',
                 method: 'POST',
                 data: {
@@ -199,11 +197,8 @@ function GamePage() {
                     {/* Loading spinner overlay */}
                     {isLoading && (
                         <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-light bg-opacity-75" style={{ zIndex: 1000 }}>
-                            <div className="text-center">
-                                <div className="spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
-                                    <span className="visually-hidden">Loading...</span>
-                                </div>
-                                <p className="fs-5">Submitting your score...</p>
+                            <div className="text-center spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
+                                <span className="visually-hidden">Loading...</span>
                             </div>
                         </div>
                     )}
@@ -227,8 +222,7 @@ function GamePage() {
                     {/* Display game status for special states */}
                     { (gameState.gameStatus === 'won' && !isLoading && !isError) && (
                     <EndGame
-                        score = {score?.score}
-                        nickname = {score?.nickname || nickname}
+                        data={data}
                         word = {word}
                     />)}
 
@@ -239,6 +233,7 @@ function GamePage() {
                             <GameStopwatch
                                 gameStatus={gameState.gameStatus}
                                 onTimeUpdate={handleTimeUpdate}
+                                isLoading = {isLoading}
                             />
 
                             {/* Word display */}

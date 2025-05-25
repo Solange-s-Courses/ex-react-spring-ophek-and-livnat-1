@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
 
-function GameStopwatch({ gameStatus, onTimeUpdate }) {
+function GameStopwatch({ gameStatus, onTimeUpdate, isLoading }) {
     const [time, setTime] = useState(0);
 
     useEffect(() => {
         let interval = null;
 
         // Start timer when game is playing, stop when won
-        if (gameStatus === 'playing') {
+        if (gameStatus === 'playing' && !isLoading) {
             interval = setInterval(() => {
                 setTime((prevTime) => {
                     const newTime = prevTime + 10; // increment by 10ms
                     // Call parent callback if provided
                     if (onTimeUpdate) {
-                        console.log(`in GameStopWatch Timestamp: ${newTime}`);
                         onTimeUpdate(newTime);
                     }
                     return newTime;

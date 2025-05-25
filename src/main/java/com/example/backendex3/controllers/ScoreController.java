@@ -41,22 +41,27 @@ public class ScoreController {
      * @return ResponseEntity with the submission result
      */
     @PostMapping(value ="")
-    public ResponseEntity<Score> submitScore(@Valid @RequestBody ScoreDTO scoreDTO) throws IOException {
+    public ResponseEntity<Map<String, Object>> submitScore(@Valid @RequestBody ScoreDTO scoreDTO) throws IOException {
+
         // Calculate score based on game statistics
         int calculatedScore = scoreService.calculateScore(
-                scoreDTO.getTimeTakenSeconds(),
+                scoreDTO.getTimeTakenMS(),
                 scoreDTO.getAttempts(),
                 scoreDTO.isUsedHint(),
                 scoreDTO.getWordLength()
         );
 
         // Save the score to the leaderboard
-        boolean saved = scoreService.savePlayerScore(scoreDTO.getNickname(), calculatedScore);
-        if (!saved) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Failed to save score. Player may already exist with a higher score.");
-        }
+        boolean changed = scoreService.savePlayerScore(scoreDTO.getNickname(), calculatedScore);
 
-        return ResponseEntity.ok(new Score(scoreDTO.getNickname(), calculatedScore));
+        // creating object that'll be passed to frontend
+        Map<String, Object> response = new HashMap<>();
+        response.put("score", calculatedScore);
+        response.put("nickname", scoreDTO.getNickname());
+        response.put("rank", scoreService.getPlayersRank(scoreDTO.getNickname()));
+        response.put("status", changed);
+
+        return ResponseEntity.ok(response);
     }
 
 
@@ -67,9 +72,10 @@ public class ScoreController {
      * @return ResponseEntity with the list of top 20 scores
      */
     @GetMapping(value = "")
-    public ResponseEntity<List<Score>> getTopScores() throws IOException{
+    public ResponseEntity<List<Score>> getScores() throws IOException{
 
-        List<Score> topScores = scoreService.getTopScores(20); // Default is 20
+        //List<Score> topScores = scoreService.getTopScores(20); // Default is 20
+        List<Score> topScores = scoreService.getLeaderboard();
         return ResponseEntity.ok(topScores);
     }
 
