@@ -3,7 +3,9 @@ package com.example.backendex3.services;
 import com.example.backendex3.repositories.Score;
 import com.example.backendex3.repositories.ScoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +19,11 @@ public class ScoreService {
 
     private final ScoreRepository scoreRepository;
 
+    /**
+     * Constructor with dependency injection.
+     *
+     * @param scoreRepository the ScoreRepository to be used
+     */
     @Autowired
     public ScoreService(ScoreRepository scoreRepository) {
         this.scoreRepository = scoreRepository;
@@ -25,7 +32,7 @@ public class ScoreService {
     /**
      * Calculates a player's score based on game statistics.
      *
-     * @param timeTakenMS Time taken to complete the game in seconds
+     * @param timeTakenMS Time taken to complete the game in milliseconds
      * @param attempts         Number of attempts made by the player
      * @param usedHint         Whether the player used a hint
      * @param wordLength       Length of the word
@@ -48,10 +55,6 @@ public class ScoreService {
         // Exponential decay: bonus = maxBonus * e^(-decayFactor * time)
         int timeBonus = (int) (maxTimeBonus * Math.exp(-decayFactor * timeTakenSeconds));
 
-
-        // Time factor: faster is better
-        //int timeBonus = Math.max(0, 500000 - (timeTakenMS * 2));
-
         // Attempts penalty: fewer attempts is better
         int attemptsPenalty = attempts * 25;
 
@@ -67,7 +70,7 @@ public class ScoreService {
 
     /**
      * Saves a player's score to the leaderboard.
-     * Updates the score if the player already exists and the new score is higher.
+     * If the player already exists and the new score is higher, it updates the leaderboard.
      *
      * @param nickname Player's unique nickname
      * @param score Calculated score value
@@ -88,28 +91,52 @@ public class ScoreService {
     }
 
     /**
-     * Retrieves the entire leaderboard.
+     * Retrieves the full leaderboard, sorted by score in descending order.
      *
-     * @return List of all scores, sorted in descending order
+     * @return List of Score objects
      * @throws IOException if there's an error reading the file
      */
     public List<Score> getLeaderboard() throws IOException {
         return scoreRepository.getAllScores();
     }
 
+    /**
+     * Gets the rank (1-based index) of a specific player in the leaderboard.
+     *
+     * @param nickname Nickname of the player
+     * @return Rank of the player (1 if first, etc.)
+     * @throws IOException if reading the score file fails
+     * @throws ResponseStatusException with status 404 (NOT_FOUND) if the nickname is not found
+     */
     public int getPlayersRank(String nickname) throws IOException {
         List<Score> scores = scoreRepository.getAllScores();
-        int i = 0;
-        for ( i = 0; i < scores.size(); i++) {
+        for (int i = 0; i < scores.size(); i++) {
             if (scores.get(i).getNickname().equals(nickname)) {
-                break;
+                return i + 1;
             }
         }
-        return i + 1;
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nickname " + nickname + " not found");
     }
 
+    /**
+     * Gets the score of a player by their index in the leaderboard.
+     *
+     * @param index Index in the leaderboard (0-based)
+     * @return The score of the player
+     * @throws IOException if reading the score file fails
+     * @throws IllegalArgumentException if the index is negative
+     * @throws ResponseStatusException with status 404 (NOT_FOUND) if the index is out of bounds
+     */
     public int getPlayersScore(int index) throws IOException {
+        if (index < 0) {
+            throw new IllegalArgumentException("Index " + index + " is negative");
+        }
+
         List<Score> scores = scoreRepository.getAllScores();
+        if (index >= scores.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Index " + index + " is out of bounds");
+        }
+
         return scores.get(index).getScore();
     }
 
