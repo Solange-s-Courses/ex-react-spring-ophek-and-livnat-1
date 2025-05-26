@@ -7,24 +7,24 @@ import java.util.*;
 /**
  * Repository class for managing score persistence.
  * This class handles reading and writing score data to a binary file using ObjectStreams.
- * Synchronized methods are used to prevent race conditions during file operations.
+ * Thread-safe operations are ensured using synchronized methods.
  */
 @Repository
 public class ScoreRepository {
+
     private static final String SCORES_FILE = "src/main/resources/scores.ser";
 
     /**
-     * Retrieves all scores from the serialized file
+     * Retrieves all scores from the serialized file.
      *
-     * @return List of all scores in the leaderboard
-     * @throws IOException if there's an error reading the file
+     * @return List of all scores in the leaderboard.
+     * @throws IOException if there's an error reading the file.
      */
     @SuppressWarnings("unchecked")
     public synchronized List<Score> getAllScores() throws IOException {
         List<Score> scores = new ArrayList<>();
         File file = new File(SCORES_FILE);
 
-        // If file doesn't exist, return empty list
         if (!file.exists()) {
             return scores;
         }
@@ -47,9 +47,9 @@ public class ScoreRepository {
      * If a player with the same nickname already exists, their score will be updated
      * only if the new score is higher.
      *
-     * @param newScore The score to save
-     * @return true if the score was added/updated, false otherwise
-     * @throws IOException if there's an error writing to the file
+     * @param newScore The new {@link Score} to save or update.
+     * @return true if the score was added or updated; false if no change was made.
+     * @throws IOException if there's an error writing to the file.
      */
     public synchronized boolean saveScore(Score newScore) throws IOException {
 
@@ -59,7 +59,6 @@ public class ScoreRepository {
         // Check if player with the same nickname already exists
         for (int i = 0; i < scores.size(); i++) {
             if (scores.get(i).getNickname().equalsIgnoreCase(newScore.getNickname())) {
-                // Update only if new score is higher
                 if (newScore.getScore() > scores.get(i).getScore()) {
                     scores.set(i, newScore);
                     updated = true;
@@ -76,8 +75,6 @@ public class ScoreRepository {
         if (updated) {
             // Sort scores in descending order before saving
             scores.sort(Comparator.comparingInt(Score::getScore).reversed());
-
-            // Write back to file
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(SCORES_FILE))) {
                 oos.writeObject(scores);
             }
@@ -88,11 +85,11 @@ public class ScoreRepository {
 
 
     /**
-     * Checks if a player with the given nickname already exists in the leaderboard
+     * Checks if a player with the given nickname already exists in the leaderboard.
      *
-     * @param scores List of scores to check
-     * @param nickname The nickname to look for
-     * @return true if the player exists, false otherwise
+     * @param scores List of scores to check.
+     * @param nickname The nickname to look for.
+     * @return true if the player exists, false otherwise.
      */
     private boolean playerExists(List<Score> scores, String nickname) {
         for (Score score : scores) {
@@ -105,19 +102,18 @@ public class ScoreRepository {
 
 
     /**
-     * Gets the top N scores from the leaderboard
+     * Retrieves the top N scores sorted in descending order.
      *
-     * @param limit The maximum number of scores to return
-     * @return List of the top scores, sorted in descending order
-     * @throws IOException if there's an error reading the file
+     * @param limit The maximum number of scores to return.
+     * @return List of the top scores.
+     * @throws IOException if there's an error reading the file.
      */
     public synchronized List<Score> getTopScores(int limit) throws IOException {
-        List<Score> allScores = getAllScores();
 
+        List<Score> allScores = getAllScores();
         // Sort scores in descending order (defensive sorting in case file was modified or not saved in order)
         allScores.sort(Comparator.comparingInt(Score::getScore).reversed());
 
-        // Return top N scores
         return allScores.size() <= limit ? allScores : allScores.subList(0, limit);
     }
 
