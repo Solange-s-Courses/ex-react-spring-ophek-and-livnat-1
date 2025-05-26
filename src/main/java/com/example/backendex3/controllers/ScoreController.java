@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * REST Controller for score management and leaderboard functionality.
- * Provides endpoints for submitting new scores and retrieving leaderboard data.
+ * REST Controller for managing player scores and leaderboard data.
+ * This controller handles score submissions and leaderboard retrievals.
  */
 @RestController
 @RequestMapping("/api/scores")
@@ -22,6 +22,11 @@ public class ScoreController {
 
     private final ScoreService scoreService;
 
+    /**
+     * Constructs a ScoreController with dependency injection for ScoreService.
+     *
+     * @param scoreService Service layer responsible for business logic related to scores
+     */
     @Autowired
     public ScoreController(ScoreService scoreService) {
         this.scoreService = scoreService;
@@ -29,15 +34,19 @@ public class ScoreController {
 
     /**
      * Submits a new score for a player based on game statistics.
-     * Calculates the final score and adds it to the leaderboard.
+     * The score is calculated on the server side and added to the leaderboard.
      *
-     * @param scoreDTO Data Transfer Object containing game statistics
-     * @return ResponseEntity with the submission result
+     * @param scoreDTO Data Transfer Object containing player's game stats (nickname, time taken, attempts, hint usage, etc.)
+     * @return ResponseEntity containing:
+     *         - score: the calculated score
+     *         - nickname: the player nickname
+     *         - rank: the player's current rank
+     *         - status: true if the score was added or improved,false otherwise
+     * @throws IOException if reading/writing data fails
      */
     @PostMapping(value ="")
     public ResponseEntity<Map<String, Object>> submitScore(@Valid @RequestBody ScoreDTO scoreDTO) throws IOException {
 
-        // Calculate score based on game statistics
         int calculatedScore = scoreService.calculateScore(
                 scoreDTO.getTimeTakenMS(),
                 scoreDTO.getAttempts(),
@@ -45,7 +54,6 @@ public class ScoreController {
                 scoreDTO.getWordLength()
         );
 
-        // Save the score to the leaderboard
         boolean changed = scoreService.savePlayerScore(scoreDTO.getNickname(), calculatedScore);
 
         // creating object that'll be passed to frontend
@@ -58,43 +66,16 @@ public class ScoreController {
         return ResponseEntity.ok(response);
     }
 
-
-
     /**
-     * Retrieves the default top 20 scores from the leaderboard.
+     * Retrieves the full leaderboard of top scores.
      *
-     * @return ResponseEntity with the list of top 20 scores
+     * @return ResponseEntity with a list of {@link Score} objects representing the leaderboard
+     * @throws IOException if leaderboard data cannot be accessed
      */
     @GetMapping(value = "")
     public ResponseEntity<List<Score>> getScores() throws IOException{
 
-        //List<Score> topScores = scoreService.getTopScores(20); // Default is 20
         List<Score> topScores = scoreService.getLeaderboard();
         return ResponseEntity.ok(topScores);
     }
-
-
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex)
-//    {
-//        Map<String, String> errors = new HashMap<>();
-//        ex.getBindingResult().getAllErrors().forEach((error) -> {
-//            String fieldName = ((FieldError) error).getField();
-//            String errorMessage = error.getDefaultMessage();
-//            errors.put(fieldName, errorMessage);
-//        });
-//        return errors;
-//    }
-//
-//    @ExceptionHandler(IllegalArgumentException.class)
-//    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-//        return ResponseEntity.badRequest().body("Invalid input: " + e.getMessage());
-//    }
-//
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<String> handleAllExceptions(Exception e) {
-//        return ResponseEntity.internalServerError().body("Internal server error: " + e.getMessage());
-//    }
-
 }
