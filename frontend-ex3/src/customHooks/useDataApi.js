@@ -6,8 +6,8 @@ import axios from 'axios';
  *
  * @param {Object} state - Current state of the fetch operation.
  * @param {Object} action - Action object that describes the change.
- * @param {string} action.type - Type of the action ('FETCH_INIT', 'FETCH_SUCCESS', 'FETCH_FAILURE').
- * @param {*} [action.payload] - Payload of data, only used in 'FETCH_SUCCESS'.
+ * @param {string} action.type - Type of the action ('FETCH_INIT', 'FETCH_SUCCESS', 'FETCH_FAILURE', 'RESET').
+ * @param {*} [action.payload] - Payload of data, used in 'FETCH_SUCCESS' and 'RESET'.
  * @returns {Object} Updated state after applying the action.
  */
 const dataFetchReducer = (state, action) => {

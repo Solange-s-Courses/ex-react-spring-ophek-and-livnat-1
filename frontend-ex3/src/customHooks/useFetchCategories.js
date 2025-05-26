@@ -5,16 +5,19 @@ import useDataApi from './useDataApi';
  * Custom hook to fetch categories for the Hangman game from the backend API.
  * Uses the useDataApi hook to handle API requests and state management.
  *
- * @param {boolean} refreshTrigger - When this value changes, categories will be refetched
- * @returns {Object} Object containing categories array, loading state, and error state
+ * @param {boolean} refreshTrigger - When this value changes, categories will be reFetched
+ * @returns {{ categories: Array<string>, loading: boolean, error: any}}
  */
 const useFetchCategories = (refreshTrigger = false) => {
 
     const [categories, setCategories] = useState([]);
 
-    // Use the data API hook to fetch from the backend endpoint
     const [{ data, isLoading, isError, error }, fetchCategories] = useDataApi({url:''}, []);
-    // Initial fetch and refresh when trigger changes
+
+    /**
+     * Fetches the categories from the backend API when the hook is first mounted
+     * or when the refreshTrigger changes.
+     */
     useEffect(() => {
         fetchCategories({
             url: '/wordEntry/getCategories',
@@ -22,9 +25,10 @@ const useFetchCategories = (refreshTrigger = false) => {
         });
     }, [refreshTrigger]);
 
-
-
-    // Process API response data once it's loaded
+    /**
+     * Processes the fetched data and stores the sorted category list in state.
+     * Only runs when new data is available and loading has finished.
+     */
     useEffect(() => {
         if (data && Array.isArray(data) && !isLoading) {
             // Sort categories alphabetically
