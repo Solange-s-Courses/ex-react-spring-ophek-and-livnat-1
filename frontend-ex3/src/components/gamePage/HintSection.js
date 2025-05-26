@@ -1,5 +1,16 @@
 import React from "react";
 
+/**
+ * HintSection component displays a button to toggle the visibility of a hint message.
+ * When the hint is shown, the button changes style and the hint text is displayed below.
+ *
+ * @param {Object} props
+ * @param {string} props.hint - The hint text to display when visible.
+ * @param {Object} props.hintState - State object controlling hint visibility.
+ * @param {Function} props.onHintPressed - Callback function invoked when the button is clicked to toggle the hint.
+ * @returns {JSX.Element} The hint toggle button and the hint message if visible.
+ * @constructor
+ */
 function HintSection({ hint, hintState, onHintPressed }) {
     return (
         <div className="mt-2">

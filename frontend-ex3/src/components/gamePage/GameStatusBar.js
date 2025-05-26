@@ -1,6 +1,19 @@
 import GameStopwatch from "./GameStopwatch";
 import HintSection from "./HintSection";
 
+/**
+ * GameStatusBar displays the game timer, attempts counter, and hint section.
+ *
+ * @param {Object} props
+ * @param {string} props.gameStatus - The current status of the game (e.g., 'playing', 'won').
+ * @param {(time: number) => void} props.onTimeUpdate - Callback triggered on timer updates with elapsed time in milliseconds.
+ * @param {number} props.attemptsCounter - Number of attempts the player has made.
+ * @param {string} props.hint - The hint text to be displayed when enabled.
+ * @param {Object} props.hintState - State object controlling hint visibility (e.g., { showHint: boolean }).
+ * @param {() => void} props.onHintPressed - Callback fired when the hint button is pressed.
+ * @returns {JSX.Element} The status bar UI component.
+ * @constructor
+ */
 function GameStatusBar ( {gameStatus, onTimeUpdate, attemptsCounter, hint, hintState, onHintPressed }) {
     return (
         <div className="mb-3">

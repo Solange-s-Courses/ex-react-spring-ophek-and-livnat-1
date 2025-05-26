@@ -1,6 +1,16 @@
-
 import HomeButton from './HomeButton'
 
+/**
+ * EndGame component displays the final game results including the word,
+ * player's score, rank, and a button to navigate back home.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.data - Data object containing the player's game info.
+ * @param {string} props.word - The word that was guessed in the game.
+ * @returns {JSX.Element} The end game summary UI.
+ * @constructor
+ */
 function EndGame({ data, word }) {
 
     const {score, nickname, rank, status } = {...data};

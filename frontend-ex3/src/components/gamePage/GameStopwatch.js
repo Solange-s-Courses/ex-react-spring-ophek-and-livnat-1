@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
 
+/**
+ * GameStopwatch component tracks elapsed time while the game is in 'playing' status.
+ * It increments the timer every 10 milliseconds and calls the optional onTimeUpdate callback.
+ *
+ * @param {Object} props
+ * @param {string} props.gameStatus - Current status of the game (e.g., 'playing', 'won').
+ * @param {(time: number) => void} [props.onTimeUpdate] - Optional callback fired with the updated time in milliseconds.
+ * @returns {JSX.Element} A formatted timer display (mm:ss.ms).
+ * @constructor
+ */
 function GameStopwatch({ gameStatus, onTimeUpdate }) {
     const [time, setTime] = useState(0);
 
@@ -20,6 +30,9 @@ function GameStopwatch({ gameStatus, onTimeUpdate }) {
     //     };
     // }, [gameStatus, onTimeUpdate]);
 
+    /**
+     * useEffect hook to manage the timer lifecycle
+     */
     useEffect(() => {
         let interval = null;
 
@@ -44,8 +57,12 @@ function GameStopwatch({ gameStatus, onTimeUpdate }) {
         };
     }, [gameStatus, onTimeUpdate]);
 
-
-    // Format time for display (mm:ss.ms)
+    /**
+     * Formats time in milliseconds to a string in mm:ss.ms format.
+     *
+     * @param {number} time - Time in milliseconds.
+     * @returns {string} Formatted time string.
+     */
     const formatTime = (time) => {
         const minutes = Math.floor(time / 60000);
         const seconds = Math.floor((time % 60000) / 1000);

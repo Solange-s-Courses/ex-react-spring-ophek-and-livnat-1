@@ -23,9 +23,18 @@
 // }
 // export default WordDisplay
 
-// WordDisplay.js
 import React from 'react';
 
+/**
+ * WordDisplay component visually displays the current state of the hidden word.
+ * Each character is shown in a styled box. Underscores ('_') are displayed as empty spaces.
+ *
+ * @param {Object} props
+ * @param {string[]} props.hiddenWord - An array of characters representing the current state of the word,
+ *                                      with unGuessed letters typically represented by underscores ('_').
+ * @returns {JSX.Element} Word display UI.
+ * @constructor
+ */
 function WordDisplay({ hiddenWord }) {
     return (
         <div className="text-center mb-4">

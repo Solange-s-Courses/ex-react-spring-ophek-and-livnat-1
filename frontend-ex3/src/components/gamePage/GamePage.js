@@ -10,14 +10,25 @@ import WordDisplay from "./WordDisplay";
 import HintSection from "./HintSection";
 import GameStatusBar from "./GameStatusBar";
 
+/**
+ * GamePage component is the main container for the Hangman game.
+ * It manages the game logic, state updates, score submission, and UI rendering.
+ *
+ * @returns {JSX.Element} The game page JSX
+ * @constructor
+ */
 function GamePage() {
+
     const location = useLocation();
     const navigate = useNavigate();
 
     const { wordEntry, nickname } = location.state || {};
     const { word, category, hint } = { ...wordEntry };
 
-    // Redirect if no word data is available
+    /**
+     * Redirects the user to home page if required data (word or nickname) is missing.
+     * Runs once on component mount or when dependencies change.
+     */
     useEffect(() => {
         if (!word || !nickname) {
             navigate('/');
@@ -44,6 +55,10 @@ function GamePage() {
     // API data fetching for score
     const [{ data, isLoading, isError}, fetchScore, reset] = useDataApi({ url: '' }, null);
 
+    /**
+     * Toggles the hint display when the hint button is pressed.
+     * Updates hintState to show or hide the hint text.
+     */
     const handleHintPressed = () => {
         setHintState( {
             ...hintState,
@@ -52,7 +67,12 @@ function GamePage() {
         });
     }
 
-    // Handle time update from stopwatch - wrapped to prevent render-time calls
+    /**
+     * Updates the current time state with the stopwatch's latest time.
+     * Uses setTimeout to defer update and avoid synchronous render issues.
+     *
+     * @param {number} time - The updated time in milliseconds
+     */
     const handleTimeUpdate = (time) => {
         // Use setTimeout to defer the state update until after render
         setTimeout(() => {
@@ -60,7 +80,12 @@ function GamePage() {
         }, 0);
     };
 
-    // Handle letter guess
+    /**
+     * Handles a letter guess by the player.
+     * Updates guessed letters, hidden word, attempts and game status accordingly.
+     *
+     * @param {string} letter - The guessed letter
+     */
     const handleGuess = (letter) => {
         // If game is not in playing state, or letter already guessed, do nothing
         if (gameState.gameStatus !== 'playing' || gameState.guessedLetters.includes(letter)) {
@@ -90,7 +115,13 @@ function GamePage() {
             gameState.attemptsCounter + 1,newFailedAttempts);
     };
 
-    //Handle word guess
+    /**
+     * Handles a full word guess by the player.
+     * If correct, reveals the entire word and submits score.
+     * If wrong, updates guessed letters and failed attempts accordingly.
+     *
+     * @param {string} guessedWord - The guessed full word
+     */
     const handleWordGuess = (guessedWord) => {
         // If game is not in playing state, do nothing
         if (gameState.gameStatus !== 'playing') {
@@ -132,6 +163,16 @@ function GamePage() {
             gameState.attemptsCounter + 1,newFailedAttempts);
     };
 
+    /**
+     * Updates the game state after a guess (letter or word).
+     * Checks for winning condition and submits score if won.
+     * Otherwise, updates guessed letters and attempts.
+     *
+     * @param {string[]} newHiddenWord - Updated hidden word array
+     * @param {string[]} newGuessedLetters - Updated guessed letters array
+     * @param {number} attemptsCounter - Updated attempts count
+     * @param {number} failedAttempts - Updated failed attempts count
+     */
     const handleStateAfterGuess = (newHiddenWord,newGuessedLetters,attemptsCounter,failedAttempts) => {
 
         // Check if game is won (no more hidden letters)
@@ -162,6 +203,10 @@ function GamePage() {
         }
     };
 
+    /**
+     * Sends the player's score to the backend API.
+     * Includes nickname, time taken, failed attempts, hint usage, and word length.
+     */
     const submitScore = () => {
         fetchScore({
             url: '/api/scores',
@@ -176,7 +221,11 @@ function GamePage() {
         });
     };
 
-    // Effect to handle score submission results
+    /**
+     * Reacts to API submission results.
+     * If successful, sets game status to 'won'.
+     * If failed, sets game status to 'score-error'.
+     */
     useEffect(() => {
 
         if (gameState.gameStatus === 'submitting-score') {
@@ -196,6 +245,10 @@ function GamePage() {
         }
     }, [isLoading, isError, data, gameState.gameStatus]);
 
+    /**
+     * Handles retrying score submission in case of an error.
+     * Resets API hook state and re-submits the score.
+     */
     const handleRetryScore = () => {
 
         // Reset to clean state

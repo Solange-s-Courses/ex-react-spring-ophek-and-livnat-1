@@ -1,9 +1,28 @@
 import React, { useState } from "react";
 
+/**
+ * WordGuess component allows the player to input and submit a full-word guess
+ * during the game. It handles validation and formatting of the input before
+ * invoking the handler passed from the parent component.
+ *
+ * @component
+ * @param {Object} props
+ * @param {{ gameStatus: string }} props.gameState - The current state of the game, including status ('playing', 'won', 'lost', etc.).
+ * @param {function} props.handleWordGuess - Callback function to handle a full-word guess submission.
+ * @param {boolean} [props.isLoading=false] - Optional flag to indicate if the game is currently processing a guess.
+ * @returns {JSX.Element} Word guess form UI.
+ * @constructor
+ */
 function WordGuess({ gameState, handleWordGuess, isLoading = false }) {
 
     const [wordInput, setWordInput] = useState('');
 
+    /**
+     * Handles form submission for guessing a word.
+     * Prevents empty or invalid inputs and normalizes the input word.
+     *
+     * @param e - The form submission event.
+     */
     const handleWordSubmit = (e) => {
         e.preventDefault();
         if (wordInput.trim().length > 0) {
@@ -12,6 +31,12 @@ function WordGuess({ gameState, handleWordGuess, isLoading = false }) {
         }
     };
 
+    /**
+     * Handles changes to the word input field.
+     * Filters out non-letter characters and updates the state.
+     *
+     * @param e - The input change event.
+     */
     const handleInputChange = (e) => {
         // Only allow letters and spaces
         const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
