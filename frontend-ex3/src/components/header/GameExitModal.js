@@ -1,5 +1,20 @@
 import { Modal, Button } from 'react-bootstrap';
 
+/**
+ * A confirmation modal shown when the user attempts to leave the game.
+ *
+ * Features:
+ * - Prevents accidental game exit by warning the user
+ * - Displays a warning icon, title, message, and two buttons: cancel or confirm
+ * - Triggered when user tries to navigate away from the game page
+ *
+ * @param {Object} props
+ * @param {boolean} props.show - Controls whether the modal is visible.
+ * @param {function} props.onCancel - Callback for when the user decides to stay in the game.
+ * @param {function} props.onConfirm - Callback for when the user confirms exiting the game.
+ * @returns {JSX.Element} The exit confirmation modal.
+ * @constructor
+ */
 function GameExitModal({ show, onCancel, onConfirm }) {
     return (
         <Modal

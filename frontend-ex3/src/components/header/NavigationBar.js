@@ -29,6 +29,14 @@ export default function NavigationBar() {
     // Check if currently on game page
     const isOnGamePage = location.pathname === '/game';
 
+    /**
+     * Handles navigation link clicks.
+     * If the user is on the game page and tries to navigate elsewhere,
+     * it prevents default navigation and shows a confirmation modal instead.
+     *
+     * @param {React.MouseEvent} e - The click event.
+     * @param {string} path - The target navigation path.
+     */
     const handleNavClick = (e, path) => {
 
         // If on game page and trying to go somewhere else, show modal
@@ -40,11 +48,18 @@ export default function NavigationBar() {
         // Otherwise, normal navigation (handled by Link)
     };
 
+    /**
+     * Cancels the navigation attempt and hides the confirmation modal.
+     */
     const handleCancelNavigation = () => {
         setShowModal(false);
         setPendingNavigation('');
     };
 
+    /**
+     * Confirms navigation away from the game page.
+     * Navigates to the previously intended route and hides the modal.
+     */
     const handleConfirmNavigation = () => {
         setShowModal(false);
         navigate(pendingNavigation);
