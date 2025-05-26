@@ -3,7 +3,7 @@ import useFetchLeaderboard from '../../customHooks/useFetchLeaderboard';// For m
 import '../../App.css'
 
 function LeaderboardPage() {
-    const { scores, loading, error } = useFetchLeaderboard();
+    const { scores, loading, error, fetchLeaderboard } = useFetchLeaderboard();
 
     return (
         <div className="min-vh-100 py-5 bg-info bg-opacity-25">
@@ -23,8 +23,14 @@ function LeaderboardPage() {
                     <div className="text-center">
                         <div className="alert alert-danger">
                             <p className="mb-2">Error loading leaderboard. Please try again.</p>
+                            <button
+                            className="btn btn-outline-danger"
+                            onClick={() => fetchLeaderboard({ url: '/api/scores' })}>
+                            Retry
+                            </button>
                         </div>
                     </div>
+
                 ) : (!loading && scores && scores.length === 0) ? (
                     <div className="text-center">
                         <div className="alert alert-info">

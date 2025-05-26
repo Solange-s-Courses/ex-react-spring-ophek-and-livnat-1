@@ -19,7 +19,8 @@ const useFetchLeaderboard = () => {
     return {
         scores,
         loading: isLoading,
-        error: isError
+        error: isError,
+        fetchLeaderboard: setConfig
     };
 };
 
