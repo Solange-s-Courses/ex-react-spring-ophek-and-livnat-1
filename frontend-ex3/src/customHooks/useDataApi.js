@@ -36,6 +36,13 @@ const dataFetchReducer = (state, action) => {
                 error: action.payload,
                 data: null,   // Clear data on failure
             };
+        case 'RESET':
+            return {
+                isLoading: false,
+                isError: false,
+                error: null,
+                data: action.payload || null, // Allow custom initial data on reset
+            };
         default:
             throw new Error();
     }
@@ -65,6 +72,14 @@ const useDataApi = (initialConfig = { url: '', method: 'GET', data: null, header
         error: null,
         data: initialData,
     });
+
+    /**
+     * Reset the state to initial values
+     * @param {*} [resetData=null] - Optional data to set after reset
+     */
+    const reset = (resetData = null) => {
+        dispatch({ type: 'RESET', payload: resetData });
+    };
 
     useEffect(() => {
         let didCancel = false;
@@ -109,7 +124,7 @@ const useDataApi = (initialConfig = { url: '', method: 'GET', data: null, header
         };
     }, [config]);
 
-    return [state, setConfig];
+    return [state, setConfig, reset];
 };
 
 export default useDataApi;

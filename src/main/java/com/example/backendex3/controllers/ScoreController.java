@@ -1,16 +1,10 @@
 package com.example.backendex3.controllers;
 import com.example.backendex3.dto.ScoreDTO;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.server.ResponseStatusException;
 import com.example.backendex3.repositories.Score;
 import com.example.backendex3.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.backendex3.utils.ValidationUtil;
-import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
 import java.io.IOException;

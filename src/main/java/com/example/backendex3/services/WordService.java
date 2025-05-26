@@ -9,21 +9,33 @@ import com.example.backendex3.repositories.WordRepository;
 
 import java.util.*;
 
-
+/**
+ * Service class that provides business logic for handling WordEntry objects.
+ * This includes operations such as retrieving, adding, updating, and deleting word entries,
+ * as well as retrieving word categories and saving changes to persistent storage.
+ */
 @Service
 public class WordService {
 
     private final WordRepository wordRepository;
     private final Random random = new Random();
 
+    /**
+     * Constructs a new WordService with the given WordRepository.
+     *
+     * @param wordRepository the repository used for accessing word data
+     */
     @Autowired
     public WordService(WordRepository wordRepository) {
         this.wordRepository = wordRepository;
     }
 
     /**
-     * Gets a random word entry
-     * @return a word entry if there's any, null otherwise
+     * Retrieves a random word entry from a given category.
+     *
+     * @param category the category from which to pick a random word
+     * @return a random WordEntry from the specified category, or null if none found
+     * @throws IllegalArgumentException if category is null or empty
      */
     public WordEntry getRandomWordByCategory(String category) {
 
@@ -38,8 +50,9 @@ public class WordService {
     }
 
     /**
-     * Gets all word entries
-     * @return List of all word entries
+     * Retrieves all word entries sorted lexicographically (case-insensitive).
+     *
+     * @return a list of all WordEntry objects sorted by word
      */
     public List<WordEntry> getAllWords() {
         List<WordEntry> allWords = wordRepository.getWords();
@@ -50,9 +63,11 @@ public class WordService {
     }
 
     /**
-     * Gets a word entry by its word value
-     * @param word The word to search for
-     * @return The word entry if found, null otherwise
+     * Retrieves a word entry by its word value.
+     *
+     * @param word the word to search for
+     * @return the matching WordEntry if found, or null otherwise
+     * @throws IllegalArgumentException if word is null or empty
      */
     public WordEntry getWord(String word) {
 
@@ -63,21 +78,21 @@ public class WordService {
     }
 
     /**
-     * Get a word entry by its ID
+     * Retrieves a word entry by its unique ID.
      *
-     * @param id The ID to look for
-     * @return The word entry if found, null otherwise
+     * @param id the ID of the word to retrieve
+     * @return the matching WordEntry if found, or null otherwise
      */
     public WordEntry getWordById(String id) {
         return wordRepository.findById(id);
     }
 
     /**
-     * Adds a new word if it doesn't exist already
+     * Adds a new word entry if it does not already exist.
      *
-     * @param wordEntry The word entry to add
-     * @return true if word was added, false if it already exists
-     * @throws IllegalArgumentException if validation fails
+     * @param wordEntry the WordEntry to add
+     * @return true if the word was added successfully, false otherwise
+     * @throws IllegalArgumentException if the entry is null, invalid, or the word already exists
      */
     public boolean addWord(WordEntry wordEntry) {
 
@@ -96,18 +111,19 @@ public class WordService {
     }
 
     /**
-     * Updates a word entry by its ID
+     * Updates an existing word entry identified by its ID.
      *
-     * @param id The ID of the word to update
-     * @param updatedEntry The updated word entry
-     * @return The updated entry if successful, null if the word wasn't found
+     * @param id           the ID of the word entry to update
+     * @param updatedEntry the updated WordEntry object
+     * @return the updated WordEntry if the update was successful, null otherwise
+     * @throws ResponseStatusException if no word is found with the given ID
+     * @throws IllegalArgumentException if trying to update to a word that already exists
      */
     public WordEntry updateWordById(String id, WordEntry updatedEntry) {
 
         WordEntry existingEntry = wordRepository.findById(id);
         if (existingEntry == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to update because it does not exist");
-           // return null;
         }
 
         String newWord = updatedEntry.getWord().toLowerCase();
@@ -127,62 +143,11 @@ public class WordService {
         return updated ? updatedEntry : null;
     }
 
-//    /**
-//     * Updates an existing word entry, optionally changing the word.
-//     *
-//     * @param updatedWord The updated WordEntry.
-//     * @param oldWord The original word to be replaced.
-//     * @return The updated WordEntry if the update succeeded, or null if the new word conflicts with an existing one or
-//     * if the update failed.
-//     * @throws IllegalArgumentException if arguments are null or empty.
-//     */
-//    public WordEntry updateWord(WordEntry updatedWord, String oldWord) {
-//        if (updatedWord == null || oldWord == null || oldWord.isEmpty()) {
-//            throw new IllegalArgumentException("Invalid arguments");
-//        }
-//
-//        String normalizedOldWord = oldWord.toLowerCase();
-//        String newWord = updatedWord.getWord().toLowerCase();
-//
-//        // check if the new word already exists
-//        if (!normalizedOldWord.equals(newWord)) {
-//            if (wordRepository.findByWord(newWord) != null) {
-//                throw new ResponseStatusException(HttpStatus.CONFLICT, "Word already exists");  // Throw conflict exception
-//            }
-//        }
-//
-//        boolean success = wordRepository.update(normalizedOldWord, updatedWord);
-//        if (!success) {
-//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update word");  // If update fails
-//        }
-//
-//        return updatedWord;  // Success
-//    }
-
-//    /**
-//     * Removes a word entry
-//     * @param word The word to remove
-//     * @return true if word was removed, false if it didn't exist
-//     * @throws IllegalArgumentException if word is null or empty
-//     */
-//    public boolean removeWord(String word) {
-//        if (word == null || word.isEmpty()) {
-//            throw new IllegalArgumentException("Word cannot be null or empty");
-//        }
-//
-//        if (wordRepository.findByWord(word.toLowerCase()) == null) {
-//            return false;
-//        }
-//
-//        wordRepository.delete(word.toLowerCase());
-//        return true;
-//    }
-
     /**
-     * Removes a word entry by its ID
+     * Removes a word entry by its ID.
      *
-     * @param id The ID of the word to remove
-     * @return true if removal was successful, false if not found
+     * @param id the ID of the word entry to remove
+     * @return true if the entry was removed successfully, false otherwise
      */
     public boolean removeWordById(String id) {
         return wordRepository.deleteById(id);
@@ -195,10 +160,11 @@ public class WordService {
         wordRepository.saveToFile();
     }
 
+
     /**
-     * Retrieves all categories
-     * @return List<String> list of categories
-     * @throws IllegalArgumentException if word is null or empty
+     * Retrieves a list of all unique word categories.
+     *
+     * @return List<String> list of category names
      */
     public List<String> getCategories() {
         List<WordEntry> allWords = getAllWords();
