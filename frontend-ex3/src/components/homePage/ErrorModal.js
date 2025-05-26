@@ -1,6 +1,16 @@
 
 import { Modal, Button } from 'react-bootstrap';
 
+/**
+ * A styled error modal to display error messages with a visual indicator.
+ *
+ * @param {boolean} show - Controls visibility of the modal.
+ * @param {function} onClose - Function to close the modal.
+ * @param {string} message - The error message to display.
+ * @param {string} [title="Something went wrong"] - Optional title of the modal.
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function ErrorModal({ show, onClose, message, title = "Something went wrong" }) {
     return (
         <Modal

@@ -3,23 +3,21 @@ import Select from 'react-select';
 import useFetchCategories from '../../customHooks/useFetchCategories';
 
 /**
- * CategoriesDropdown renders a select input using react-select.
- * It supports validation and scrollable dropdown.
+ * CategoriesDropdown renders a styled category selector using react-select.
+ * It fetches categories dynamically, supports validation and refresh, and provides error feedback.
  *
  * @param {Object} props
  * @param {function} props.handleChange - Callback when selected category changes.
- * @param {string} props.value - Currently selected category.
+ * @param {string} props.value - Currently selected category value.
  * @param {boolean|null} props.isValid - Validation state (true, false, or null).
  * @param {string} props.id - HTML id for accessibility.
  * @param {boolean} props.disabled - Whether the dropdown is disabled.
- * @param {boolean} props.refreshTrigger - Trigger to refresh categories when toggled.
+ * @param {boolean} props.refreshTrigger - Used to reFetch categories.
  * @returns {JSX.Element}
  */
 function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false, refreshTrigger = false }) {
 
     const { categories, loading, error } = useFetchCategories(refreshTrigger);
-
-    // Handle error state
     const errorMessage = error ? 'Failed to load categories' : null;
 
     const displayedCategories = categories.map((category) => ({
@@ -27,6 +25,10 @@ function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false
         value: category
     }));
 
+    /**
+     * Handles selection of a category from the dropdown.
+     * @param selectedOption - Selected option from the dropdown.
+     */
     const handleSelectChange = (selectedOption) => {
         handleChange({
             target: {

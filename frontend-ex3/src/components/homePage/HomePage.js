@@ -5,8 +5,15 @@ import useDataApi from "../../customHooks/useDataApi";
 import GameRules from "./GameRules";
 import PlayerSetupForm from "./PlayerSetupForm"
 
-
+/**
+ * HomePage - Main entry page for the Hangman game.
+ * Handles nickname/category input, validation, and navigation to the game screen.
+ *
+ * @returns {Element}
+ * @constructor
+ */
 function HomePage() {
+
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({nickname: '', category: ''});
@@ -19,6 +26,10 @@ function HomePage() {
 
     const [{ data, isLoading, isError, error }, setConfig, reset] = useDataApi({ url: '' }, null);
 
+    /**
+     * Handle user input changes.
+     * @param e
+     */
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({...prev, [name]: value}));
@@ -28,12 +39,20 @@ function HomePage() {
         }
     };
 
+    /**
+     * Close the error modal and reset relevant state.
+     */
     const handleCloseDeleteModal = () => {
         setShowDeleteModal(false);
         setErrorMessage('');
         reset();
     };
 
+    /**
+     * Handle form submission and trigger the API call.
+     * @param e
+     * @returns {Promise<void>}
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -62,8 +81,11 @@ function HomePage() {
         }
     };
 
-    // Handle API response
+    /**
+     * Process the API response after submission.
+     */
     useEffect(() => {
+
         // Only process responses when we're actively submitting
         if (!isSubmitting) return;
 

@@ -1,8 +1,9 @@
 import React from 'react';
-import useFetchLeaderboard from '../../customHooks/useFetchLeaderboard';// For medal icons
+import useFetchLeaderboard from '../../customHooks/useFetchLeaderboard';
 import '../../App.css'
 
 function LeaderboardPage() {
+
     const { scores, loading, error, fetchLeaderboard } = useFetchLeaderboard();
 
     return (

@@ -1,5 +1,10 @@
 import React from "react";
 
+/**
+ * Displays the rules for playing the Hangman game.
+ * @returns {Element}
+ * @constructor
+ */
 function GameRules () {
 
     return (

@@ -1,6 +1,19 @@
 import CategoriesDropdown from "./CategoriesDropdown";
 import React from "react";
 
+/**
+ * PlayerSetupForm - Form component for entering a nickname and selecting a category.
+ *
+ * @param {Object} props - Component props
+ * @param {Function} props.handleSubmit - Function called on form submit
+ * @param {Function} props.handleInputChange - Function called on input change
+ * @param {boolean} props.isSubmitting - Indicates if the form is currently being submitted
+ * @param {Object} props.validation - Object containing validation states for fields
+ * @param {Object} props.formData - Object containing form field values
+ * @param {*} props.refreshTrigger - Trigger for refreshing category dropdown data
+ * @returns {JSX.Element} Rendered form component
+ * @constructor
+ */
 function PlayerSetupForm ({handleSubmit, handleInputChange, isSubmitting, validation, formData, refreshTrigger}) {
 
     return (
