@@ -73,7 +73,7 @@ function WordsList({ words,
     };
 
     return (
-        <div className="mb-5 pt-5">
+        <div>
             {words.length > 0 ? (
                 <div className="card shadow-sm">
                     <div className="card-header bg-white">

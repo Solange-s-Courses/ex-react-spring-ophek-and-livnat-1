@@ -174,6 +174,10 @@ function ManagePage() {
                                     />
                                 ) : (
                                     <>
+                                        <AddWordButton
+                                        onClick={() => setShowForm(true)}
+                                        />
+
                                         <WordsList
                                             words={words}
                                             updateWord={updateWord}
@@ -182,9 +186,7 @@ function ManagePage() {
                                             isDeleting={deleteWordState.isLoading}
                                             forceCloseModals={!!globalError}
                                         />
-                                        <AddWordButton
-                                            onClick={() => setShowForm(true)}
-                                        />
+
                                     </>
                                 )}
                             </>

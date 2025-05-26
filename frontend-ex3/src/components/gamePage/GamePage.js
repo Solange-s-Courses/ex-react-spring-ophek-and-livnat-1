@@ -6,6 +6,9 @@ import Keyboard from "./Keyboard";
 import WordGuess from "./WordGuess";
 import GameStopwatch from "./GameStopwatch";
 import HomeButton from "./HomeButton";
+import WordDisplay from "./WordDisplay";
+import HintSection from "./HintSection";
+import GameStatusBar from "./GameStatusBar";
 
 function GamePage() {
     const location = useLocation();
@@ -208,15 +211,26 @@ function GamePage() {
 
     // If no word data, show loading or redirect
     if (!word || !nickname) {
-        return <div className="text-center p-5">Redirecting to home page...</div>;
+        // return <div className="text-center p-5">Redirecting to home page...</div>;
+        return (
+            <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+                <div className="text-center">
+                    <div className="spinner-border text-primary mb-3" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="text-muted">Redirecting to home page...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="min-vh-100 py-5 bg-info bg-opacity-25">
             <div className="container">
+
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <h1 className="display-5 fw-bold">Hangman Game</h1>
-                    <div className="text-end">
+                    <div className="text-start">
                         <p className="fs-5 mb-1">Player: <span className="fw-semibold">{nickname}</span></p>
                         <p className="fs-5 mb-0">Category: <span className="fw-semibold">{category}</span></p>
                     </div>
@@ -227,8 +241,9 @@ function GamePage() {
 
                     {/* Loading spinner overlay */}
                     {(isLoading || gameState.gameStatus === 'submitting-score') && (
-                        <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-light bg-opacity-75" style={{ zIndex: 1000 }}>
-                            <div className="text-center spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
+                        <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-light bg-opacity-75"
+                             style={{ zIndex: 1000 }}>
+                            <div className="text-center spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }}>
                                 <span className="visually-hidden">Loading...</span>
                             </div>
                         </div>
@@ -251,54 +266,80 @@ function GamePage() {
 
                     {/* Game won successfully */}
                     { (gameState.gameStatus === 'won' && !isLoading && !isError) && (
-                        <EndGame
-                            data={data}
-                            word = {word}
-                        />
+                        <EndGame data={data} word = {word}/>
                     )}
 
                     {/* Game is still being played */}
                     {(gameState.gameStatus === 'playing' && !isLoading) && (
                         <>
-                            {/* The stopwatch */}
-                            <GameStopwatch
+                            {/* Game Status Bar - Timer, Hint, and Attempts in one row using your components */}
+                            <GameStatusBar
                                 gameStatus={gameState.gameStatus}
                                 onTimeUpdate={handleTimeUpdate}
+                                attemptsCounter={gameState.attemptsCounter}
+                                hint={hint}
+                                hintState={hintState}
+                                onHintPressed={handleHintPressed}
                             />
 
+                            {/*/!* The stopwatch *!/*/}
+                            {/*<GameStopwatch*/}
+                            {/*    gameStatus={gameState.gameStatus}*/}
+                            {/*    onTimeUpdate={handleTimeUpdate}*/}
+                            {/*/>*/}
+
+                            {/*/!*Attempts counter*!/*/}
+                            {/*<div className="badge bg-primary fs-6 px-3 py-2 mb-3">*/}
+                            {/*    Attempts: <span className="fw-bold">{gameState.attemptsCounter}</span>*/}
+                            {/*</div>*/}
+
                             {/* Word display */}
-                            <div className="mb-5 text-center">
-                                <div className="alert alert-info fs-5 d-inline-block px-4 py-2 mb-4">
-                                    Number of Attempts: <span className="fw-bold">{gameState.attemptsCounter}</span>
-                                </div>
-                                <div className="d-flex justify-content-center gap-2 mb-2">
-                                    {gameState.hiddenWord.map((char, index) => (
-                                        <div
-                                            key={index}
-                                            className="d-inline-block border-bottom border-2 border-dark text-center mx-1"
-                                            style={{ width: '35px', height: '45px' }}
-                                        >
-                                            <span className="fs-3 fw-bold">{char !== '_' ? char : ''}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                            <WordDisplay
+                                hiddenWord={gameState.hiddenWord}
+                            />
+                            {/*<div className="mb-5 text-center">*/}
+                            {/*    <div className="alert alert-info fs-5 d-inline-block px-4 py-2 mb-4">*/}
+                            {/*        Number of Attempts: <span className="fw-bold">{gameState.attemptsCounter}</span>*/}
+                            {/*    </div>*/}
+                            {/*    <div className="d-flex justify-content-center gap-2 mb-2">*/}
+                            {/*        {gameState.hiddenWord.map((char, index) => (*/}
+                            {/*            <div*/}
+                            {/*                key={index}*/}
+                            {/*                className="d-inline-block border-bottom border-2 border-dark text-center mx-1"*/}
+                            {/*                style={{ width: '35px', height: '45px' }}*/}
+                            {/*            >*/}
+                            {/*                <span className="fs-3 fw-bold">{char !== '_' ? char : ''}</span>*/}
+                            {/*            </div>*/}
+                            {/*        ))}*/}
+                            {/*    </div>*/}
+                            {/*</div>*/}
 
                             {/* Hint section */}
-                            <div className="text-center mb-4">
-                                <button
-                                    className="btn btn-outline-info"
-                                    type="button"
-                                    onClick={handleHintPressed}
-                                >
-                                    {hintState.showHint ? 'Hide Hint' : 'Show Hint'}
-                                </button>
-                                { hintState.showHint && (
-                                    <div className="mt-2 card card-body bg-light">
-                                        <p className="mb-0"><strong>Hint:</strong> {hint}</p>
-                                    </div>
-                                )}
-                            </div>
+                            {/*<HintSection*/}
+                            {/*    hint={hint}*/}
+                            {/*    hintState={hintState}*/}
+                            {/*    onHintPressed={handleHintPressed}*/}
+                            {/*    />*/}
+                            {/*<div className="text-center mb-4">*/}
+                            {/*    <button*/}
+                            {/*        className="btn btn-outline-info"*/}
+                            {/*        type="button"*/}
+                            {/*        onClick={handleHintPressed}*/}
+                            {/*    >*/}
+                            {/*        {hintState.showHint ? 'Hide Hint' : 'Show Hint'}*/}
+                            {/*    </button>*/}
+                            {/*    { hintState.showHint && (*/}
+                            {/*        <div className="mt-2 card card-body bg-light">*/}
+                            {/*            <p className="mb-0"><strong>Hint:</strong> {hint}</p>*/}
+                            {/*        </div>*/}
+                            {/*    )}*/}
+                            {/*</div>*/}
+
+                            <Keyboard
+                                gameState={gameState}
+                                handleGuess={handleGuess}
+                                isLoading={gameState.gameStatus === 'submitting-score' || isLoading}
+                            />
 
                             <WordGuess
                                 gameState={gameState}
@@ -306,11 +347,8 @@ function GamePage() {
                                 isLoading={gameState.gameStatus === 'submitting-score' || isLoading}
                             />
 
-                            <Keyboard
-                                gameState={gameState}
-                                handleGuess={handleGuess}
-                                isLoading={gameState.gameStatus === 'submitting-score' || isLoading}
-                            />
+
+
 
                             <HomeButton buttonText="Exit Game"/>
                         </>

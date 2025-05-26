@@ -1,0 +1,55 @@
+// import React from "react";
+//
+// function WordDisplay ({hiddenWord, attemptsCounter}) {
+//     return (
+//         <div className="mb-5 text-center">
+//             <div className="alert alert-info fs-5 d-inline-block px-4 py-2 mb-4">
+//                 Number of Attempts: <span className="fw-bold">{attemptsCounter}</span>
+//             </div>
+//             <div className="d-flex justify-content-center gap-2 mb-2">
+//                 {hiddenWord.map((char, index) => (
+//                     <div
+//                         key={index}
+//                         className="d-inline-block border-bottom border-2 border-dark text-center mx-1"
+//                         style={{ width: '35px', height: '45px' }}
+//                     >
+//                         <span className="fs-3 fw-bold">{char !== '_' ? char : ''}</span>
+//                     </div>
+//                 ))}
+//             </div>
+//         </div>
+//
+//     );
+// }
+// export default WordDisplay
+
+// WordDisplay.js
+import React from 'react';
+
+function WordDisplay({ hiddenWord }) {
+    return (
+        <div className="text-center mb-4">
+                <div className="card-body py-3">
+                    <div className="d-flex justify-content-center align-items-center flex-wrap gap-2">
+                        {hiddenWord.map((char, index) => (
+                            <div
+                                key={index}
+                                className="word-letter d-flex align-items-center justify-content-center border-bottom border-3"
+                                style={{
+                                    width: '50px',
+                                    height: '60px',
+                                    borderRadius: '8px 8px 0 0'
+                                }}
+                            >
+                                <span className="fs-2 fw-bold text-dark">
+                                    {char !== '_' ? char.toUpperCase() : ''}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+        </div>
+    );
+}
+
+export default WordDisplay;

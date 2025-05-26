@@ -8,7 +8,7 @@ function Keyboard({gameState, handleGuess, isLoading = false}){
         <>
             <div className="text-center mb-4">
                 <hr className="my-3" />
-                <small className="text-muted">Or guess letter by letter:</small>
+                <small className="text-muted">Guess letter by letter:</small>
             </div>
 
             <div className="d-flex flex-wrap justify-content-center gap-2 mb-4">

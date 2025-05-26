@@ -8,7 +8,7 @@ function EndGame({ data, word }) {
     return (
         <div className="text-center mb-4">
             <div className="alert alert-success p-4">
-                <h3 className="fs-2 fw-bold mb-3">Good Job, {nickname}!</h3>
+                <h3 className="fs-2 fw-bold mb-3">Good Job {nickname}! 🎉 </h3>
                 <p className="fs-4 mb-3">The word was: <span className="fw-bold">{word}</span></p>
 
                 {status ? (

@@ -57,11 +57,7 @@ function GameStopwatch({ gameStatus, onTimeUpdate }) {
     };
 
     return (
-        <div className="text-center mb-3">
-            <div className="alert alert-secondary d-inline-block px-3 py-2">
-                <span className="fw-bold">Time: {formatTime(time)}</span>
-            </div>
-        </div>
+        <>{formatTime(time)}</>
     );
 }
 

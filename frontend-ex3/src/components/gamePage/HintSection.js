@@ -1,0 +1,50 @@
+import React from "react";
+
+function HintSection({ hint, hintState, onHintPressed }) {
+    return (
+        <div className="mt-2">
+            {/* Button */}
+            <div className="text-start">
+                <button
+                    className={`btn ${hintState.showHint ? 'btn-warning' : 'btn-outline-warning'} px-4 py-2 fw-medium`}
+                    type="button"
+                    onClick={onHintPressed}
+                >
+                    <i className={`bi ${hintState.showHint ? 'bi-lightbulb-fill' : 'bi-lightbulb'} me-2`}></i>
+                    {hintState.showHint ? 'Hide Hint' : 'Show Hint'}
+                </button>
+            </div>
+
+            {/* Full-width hint below the button */}
+            {hintState.showHint && (
+                <div className="mt-3 alert alert-warning border-0 bg-warning bg-opacity-10 w-100">
+                    <p className="mb-0 text-warning-emphasis">
+                        <i className="bi bi-info-circle-fill text-warning me-2"></i>
+                        {hint}
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// function HintSection ({hint, hintState, onHintPressed}) {
+//     return (
+//         <div className="text-center mb-4">
+//             <button
+//                 className="btn btn-outline-info"
+//                 type="button"
+//                 onClick={onHintPressed}
+//             >
+//                 {hintState.showHint ? 'Hide Hint' : 'Show Hint'}
+//             </button>
+//             { hintState.showHint && (
+//                 <div className="mt-2 card card-body bg-light">
+//                     <p className="mb-0"><strong>Hint:</strong> {hint}</p>
+//                 </div>
+//             )}
+//         </div>
+//     );
+// }
+
+export default HintSection
