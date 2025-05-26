@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * WordRow component to display a single word with actions
+ * WordRow component to display a single word with actions (edit, delete)
  *
  * @param {Object} props - Component props
  * @param {Object} props.wordEntry - The word object to display

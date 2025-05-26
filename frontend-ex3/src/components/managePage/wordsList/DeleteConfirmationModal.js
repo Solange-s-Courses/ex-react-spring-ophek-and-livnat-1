@@ -3,7 +3,7 @@ import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
 /**
- * DeleteConfirmationModal displays a modal dialog asking the user to confirm deletion of a city.
+ * DeleteConfirmationModal displays a modal dialog asking the user to confirm deletion of a word.
  *
  * @param {Object} props
  * @param {boolean} props.show - Whether the modal is visible.

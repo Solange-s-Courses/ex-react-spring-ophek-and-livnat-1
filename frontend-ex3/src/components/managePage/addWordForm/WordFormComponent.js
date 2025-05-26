@@ -2,7 +2,9 @@ import React, {useEffect, useState} from 'react';
 import useDataApi from '../../../customHooks/useDataApi';
 
 /**
- * WordFormComponent - Reusable form component for word operations
+ * WordFormComponent - Reusable form component for word operations.
+ * Provides form fields for `word`, `category`, and `hint` and ensures
+ * that the word is unique (if creating) using the /exists API.
  *
  * @param {Object} props - Component props
  * @param {Object} props.initialFormState - Initial state of the form
@@ -27,35 +29,9 @@ function WordFormComponent({
         null
     );
 
-    // // Effect to handle word uniqueness check results
-    // useEffect(() => {
-    //     // Only process completed API calls
-    //     if (!isCheckingWord && (existingWord !== null || isError)) {
-    //         // If we got a successful response with data, the word exists
-    //         if (existingWord && !isError) {
-    //             setErrors(prev => ({
-    //                 ...prev,
-    //                 word: 'This word already exists'
-    //             }));
-    //         }
-    //         // If there was an error, check if it's a 404 (word not found) or a server error
-    //         else if (isError) {
-    //             if (error && error.status === 404) {
-    //                 // 404 means word doesn't exist, so can be added
-    //                 onSubmit(formData);
-    //             } else {
-    //                 // Any other error is a server error
-    //                 setErrors(prev => ({
-    //                     ...prev,
-    //                     server: 'Server error, please try again later'
-    //                 }));
-    //             }
-    //         }
-    //     }
-    // }, [existingWord, isCheckingWord, isError, error]);//, formData, onSubmit]);
-    //
-
-    // Effect to handle word uniqueness check results
+    /**
+     * Effect to handle word uniqueness check results
+     */
     useEffect(() => {
         // Only process completed API calls
         if (!isCheckingWord && (validationResult !== null || isError)) {
@@ -83,7 +59,7 @@ function WordFormComponent({
 
 
     /**
-     * Validates form data
+     * Performs basic client-side validation on the form
      * @returns {boolean} True if valid, false otherwise
      */
     const validateForm = () => {
@@ -110,7 +86,7 @@ function WordFormComponent({
     };
 
     /**
-     * Handles input changes
+     * Updates form state and clears field-level error
      * @param {Event} e - The change event
      */
     const handleChange = (e) => {
@@ -130,7 +106,9 @@ function WordFormComponent({
     };
 
     /**
-     * Handles form submission
+     * Handles submission:
+     * - Runs validation
+     * - Triggers word uniqueness check or directly submits
      * @param {Event} e - The submit event
      */
     const handleSubmit = (e) => {
@@ -141,8 +119,8 @@ function WordFormComponent({
             setErrors(prev => ({...prev, server: null}));
         }
 
-        // First perform basic validation
         if (validateForm()) {
+
             // Check if we're editing an existing word or adding a new one
             const isEditing = initialFormState.id !== undefined;
 
@@ -252,10 +230,37 @@ function WordFormComponent({
             </div>
         </form>
     );
-
 }
 
 export default WordFormComponent;
+
+// // Effect to handle word uniqueness check results
+// useEffect(() => {
+//     // Only process completed API calls
+//     if (!isCheckingWord && (existingWord !== null || isError)) {
+//         // If we got a successful response with data, the word exists
+//         if (existingWord && !isError) {
+//             setErrors(prev => ({
+//                 ...prev,
+//                 word: 'This word already exists'
+//             }));
+//         }
+//         // If there was an error, check if it's a 404 (word not found) or a server error
+//         else if (isError) {
+//             if (error && error.status === 404) {
+//                 // 404 means word doesn't exist, so can be added
+//                 onSubmit(formData);
+//             } else {
+//                 // Any other error is a server error
+//                 setErrors(prev => ({
+//                     ...prev,
+//                     server: 'Server error, please try again later'
+//                 }));
+//             }
+//         }
+//     }
+// }, [existingWord, isCheckingWord, isError, error]);//, formData, onSubmit]);
+//
 
 // return (
 //     <form className="word-form" onSubmit={handleSubmit}>

@@ -5,7 +5,8 @@ import React, {useEffect, useState} from "react";
 
 
 /**
- * WordsList component that displays and manages a list of words
+ * WordsList component that displays and manages a list of words.
+ * It supports editing and deleting word entries and uses modals/forms for user interactions.
  *
  * @param {Object} props - Component props
  * @param {Array} props.words - Array of word objects to display
@@ -27,7 +28,9 @@ function WordsList({ words,
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [wordToDelete, setWordToDelete] = useState(null);
 
-    // Effect to handle forced closing of modals/forms when global error occurs
+    /**
+     * useEffect hook to force-close all modals and forms when `forceCloseModals` becomes true.
+     */
     useEffect(() => {
         if (forceCloseModals) {
             setEditingWord(null);
@@ -36,36 +39,53 @@ function WordsList({ words,
         }
     }, [forceCloseModals]);
 
-
+    /**
+     * Opens the delete confirmation modal for the selected word.
+     * @param {Object} wordEntry - The word object to delete.
+     */
     const handleDeleteClick = (wordEntry) => {
         setWordToDelete(wordEntry);
         setShowDeleteModal(true);
     };
 
+    /**
+     * Closes the delete confirmation modal.
+     * Prevents closing if a delete operation is currently in progress.
+     */
     const handleCloseDeleteModal = () => {
         if (isDeleting) return;     // Prevent closing while deletion is in progress
         setShowDeleteModal(false);
         setWordToDelete(null);
     };
 
+    /**
+     * Confirms deletion of the selected word by calling `deleteWord` and closing the modal.
+     */
     const confirmDelete = () => {
         setShowDeleteModal(false);
         deleteWord(wordToDelete.id);
         setWordToDelete(null);
     };
 
+    /**
+     * Opens the edit form for the selected word.
+     * @param {Object} wordEntry - The word object to edit.
+     */
     const handleEditWord = (wordEntry) => {
         setEditingWord(wordEntry);
     };
 
-
+    /**
+     * Submits the updated word object and closes the edit form.
+     * @param {Object} updatedWord - The updated word data.
+     */
     const handleUpdateWord = (updatedWord) => {
         updateWord(updatedWord);
         setEditingWord(null); // Close edit form immediately
     };
 
     /**
-     * Cancels the editing mode.
+     * Cancels editing mode. Disabled if an update is in progress.
      */
     const handleCancelEdit = () => {
         if (isUpdating) return; // Prevent canceling while update is in progress

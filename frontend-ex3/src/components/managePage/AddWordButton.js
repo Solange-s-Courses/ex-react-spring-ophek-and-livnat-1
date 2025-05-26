@@ -1,6 +1,5 @@
 /**
  * A modern add word button component using only Bootstrap classes.
- * Button is now centered in the layout.
  * @returns {JSX.Element}
  * @constructor
  */

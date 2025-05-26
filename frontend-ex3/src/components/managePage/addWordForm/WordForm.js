@@ -10,16 +10,27 @@ import WordFormComponent from './WordFormComponent';
  * @returns {JSX.Element} Rendered component
  */
 function WordForm({ addWord, setShowForm, isLoading = false}) {
+
     const initialFormState = {
         word: '',
         category: '',
         hint: ''
     };
 
+    /**
+     * Handles form submission logic
+     * Delegates to addWord with collected form data
+     *
+     * @param {Object} formData - Submitted form data
+     */
     const handleSubmit = (formData) => {
         addWord(formData);
     };
 
+    /**
+     * Handles cancellation of the form
+     * Hides the form by updating state in the parent component
+     */
     const handleCancel = () => {
         setShowForm(false);
     };
