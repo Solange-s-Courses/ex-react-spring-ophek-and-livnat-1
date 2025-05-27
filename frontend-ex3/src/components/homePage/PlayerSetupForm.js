@@ -1,5 +1,5 @@
 import CategoriesDropdown from "./CategoriesDropdown";
-import React from "react";
+import React, {useState} from "react";
 
 /**
  * PlayerSetupForm - Form component for entering a nickname and selecting a category.
@@ -15,6 +15,20 @@ import React from "react";
  * @constructor
  */
 function PlayerSetupForm ({handleSubmit, handleInputChange, isSubmitting, validation, formData, refreshTrigger}) {
+
+    const [canStartGame, setCanStartGame] = useState(true);
+
+    /**
+     * Updates whether the game can start, delayed to avoid render issues.
+     *
+     * @param {boolean} canStart - True if the game can start.
+     */
+    const handleStartGame =(canStart)=>{
+        // Use setTimeout to defer the state update until after render
+        setTimeout(() => {
+            setCanStartGame(canStart);
+        }, 0);
+    }
 
     return (
         <div className="col-md-6">
@@ -67,23 +81,15 @@ function PlayerSetupForm ({handleSubmit, handleInputChange, isSubmitting, valida
                                 isValid={validation.category}
                                 disabled={isSubmitting}
                                 refreshTrigger={refreshTrigger}
-                                className={`form-select form-select-lg text-dark ${
-                                    validation.category === false ? 'is-invalid' : validation.category === true 
-                                        ? 'is-valid' : ''
-                                }`}
+                                setCanStartGame={handleStartGame}
                             />
-                            {validation.category === false && (
-                                <div className="invalid-feedback">
-                                    Please select a category
-                                </div>
-                            )}
                         </div>
 
                         {/* Submit Button */}
                         <button
                             type="submit"
                             className="btn btn-success btn-lg w-100 py-3 shadow"
-                            disabled={isSubmitting} >
+                            disabled={isSubmitting || !canStartGame} >
 
                             {isSubmitting ? (
                                 <span>

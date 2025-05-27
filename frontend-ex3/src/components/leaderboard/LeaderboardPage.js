@@ -83,7 +83,7 @@ function LeaderboardPage() {
                                     })}
                                 </div>
 
-                                {/* The rest */}
+                                {/* The rest of the list */}
                                 {rest.length > 0 && (
                                     <div className="card shadow mb-5">
                                         <div className="card-header bg-primary text-white">

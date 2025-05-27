@@ -3,27 +3,31 @@ import Select from 'react-select';
 import useFetchCategories from '../../customHooks/useFetchCategories';
 
 /**
- * CategoriesDropdown renders a styled category selector using react-select.
- * It fetches categories dynamically, supports validation and refresh, and provides error feedback.
+ * Renders a dropdown menu of categories fetched from an API.
+ * Automatically disables the ability to start the game if the categories fail to load.
  *
- * @param {Object} props
- * @param {function} props.handleChange - Callback when selected category changes.
- * @param {string} props.value - Currently selected category value.
- * @param {boolean|null} props.isValid - Validation state (true, false, or null).
- * @param {string} props.id - HTML id for accessibility.
- * @param {boolean} props.disabled - Whether the dropdown is disabled.
- * @param {boolean} props.refreshTrigger - Used to reFetch categories.
- * @returns {JSX.Element}
+ * @param {function} handleChange - Function to call when a category is selected.
+ * @param {Object|null} value - The currently selected value in the dropdown.
+ * @param {boolean|null} isValid - Validation status of the dropdown (true, false, or null).
+ * @param {string} id - The ID for the dropdown input element.
+ * @param {boolean} [disabled=false] - Whether the dropdown should be disabled.
+ * @param {boolean} [refreshTrigger=false] - If true, re-fetches categories.
+ * @param {function} setCanStartGame - Callback to control whether the game can start based on category fetch status.
+ *
+ * @returns {JSX.Element} A styled dropdown component populated with category options.
+ * @constructor
  */
-function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false, refreshTrigger = false }) {
+function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false, refreshTrigger = false, setCanStartGame }) {
 
-    const { categories, loading, error } = useFetchCategories(refreshTrigger);
+    const { categories, loading,isError, error } = useFetchCategories(refreshTrigger);
     const errorMessage = error ? 'Failed to load categories' : null;
 
     const displayedCategories = categories.map((category) => ({
         label: category,
         value: category
     }));
+
+    isError? setCanStartGame(false):setCanStartGame(true);
 
     /**
      * Handles selection of a category from the dropdown.
@@ -58,7 +62,7 @@ function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false
                 </div>
             )}
             {errorMessage && (
-                <div className="text-red-500 mt-1 text-sm">
+                <div className="invalid-feedback d-block">
                     {errorMessage}. Please try again later or contact support.
                 </div>
             )}

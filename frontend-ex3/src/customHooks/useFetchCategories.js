@@ -40,6 +40,7 @@ const useFetchCategories = (refreshTrigger = false) => {
     return {
         categories,
         loading: isLoading,
+        isError: isError,
         error: isError ? error : null
     };
 };
