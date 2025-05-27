@@ -1,22 +1,26 @@
 import React from 'react';
 import WordFormComponent from './WordFormComponent';
+import { useWordManagement } from '../../WordManagementContext';
 
 /**
- * WordEditForm - Component for editing an existing word entry.
+ * WordEditForm component for editing an existing word entry.
  *
  * @param {Object} props - Component props
- * @param {Object} props.wordEntry - The word object to be edited
+ * @param {Object} props.wordEntry - The word object being edited
  * @param {Function} props.updateWord - Function to call with updated word data
- * @param {Function} props.cancelEditing - Function to cancel the editing process
- * @param {boolean} [props.isLoading=false] - Flag to show loading state during update
- * @returns {JSX.Element} Rendered component
+ * @param {Function} props.cancelEditing - Function to cancel editing and close form
+ * @returns {JSX.Element} Rendered edit form with title and form component
  */
-function WordEditForm({ wordEntry, updateWord, cancelEditing, isLoading = false }) {
+function WordEditForm({ wordEntry, updateWord, cancelEditing }) {
+
+    const { isUpdating } = useWordManagement();
 
     /**
-     * Handles the form submission and includes the original ID
+     * Handles form submission by preserving the original word ID and calling updateWord.
+     * The ID must be preserved to ensure the backend knows which word to update.
+     * The updateWord function is provided by the parent WordsList component.
      *
-     * @param {Object} formData - Updated form data from user input
+     * @param {Object} formData - The updated form data from WordFormComponent
      */
     const handleSubmit = (formData) => {
         // Preserve the ID when updating
@@ -33,8 +37,8 @@ function WordEditForm({ wordEntry, updateWord, cancelEditing, isLoading = false 
                 initialFormState={wordEntry}
                 onSubmit={handleSubmit}
                 onCancel={cancelEditing}
-                submitButtonText={isLoading ? "Saving..." : "Save"}
-                disabled={isLoading}
+                submitButtonText={isUpdating ? "Saving..." : "Save"}
+                disabled={isUpdating}
             />
         </div>
     );
