@@ -33,9 +33,11 @@ function LeaderboardPage() {
 
                 ) : (!loading && scores && scores.length === 0) ? (
                     <div className="text-center">
-                        <div className="alert alert-info">
-                            <h5>No players yet!</h5>
-                            <p>Be the first to play and claim the top spot on the leaderboard!</p>
+                        <div className="alert alert-info bg-light border-info d-flex align-items-center">
+                            <i className="bi bi-info-circle me-3 fs-4"></i>
+                            <p className="mb-0">
+                                No players yet! Be the first to play and claim the top spot on the leaderboard!
+                            </p>
                         </div>
                     </div>
                 ) : (

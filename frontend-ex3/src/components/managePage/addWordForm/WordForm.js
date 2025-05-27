@@ -36,7 +36,7 @@ function WordForm({ addWord, setShowForm, isLoading = false}) {
     };
 
     return (
-        <div className="add-word-form p-3 border rounded mb-2 pt-5">
+        <div className="add-word-form p-3 mb-2 pt-5">
             <h3>Add New Word Definition</h3>
 
             <WordFormComponent
