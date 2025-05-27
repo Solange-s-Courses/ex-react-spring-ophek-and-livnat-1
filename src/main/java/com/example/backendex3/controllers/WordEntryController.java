@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.backendex3.repositories.WordEntry;
 import com.example.backendex3.services.WordService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,9 +169,8 @@ public class WordEntryController {
     public ResponseEntity<List<String>> getCategories() {
         List<String> categories = wordService.getCategories();
         if (categories.isEmpty()) {
-            return ResponseEntity.noContent().build(); // HTTP 204
+            return ResponseEntity.ok(new ArrayList<>());
         }
         return ResponseEntity.ok(categories);
-
     }
 }
