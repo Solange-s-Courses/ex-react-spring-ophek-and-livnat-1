@@ -30,7 +30,6 @@ const useFetchCategories = (refreshTrigger = false) => {
      * Only runs when new data is available and loading has finished.
      */
     useEffect(() => {
-        //if (data && Array.isArray(data) && !isLoading) {
         if (Array.isArray(data) && !isLoading) {
             // Sort categories alphabetically
             const sortedCategories = [...data].sort();
