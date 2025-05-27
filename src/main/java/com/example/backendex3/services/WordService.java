@@ -156,7 +156,7 @@ public class WordService {
     /**
      * Retrieves a list of all unique word categories.
      *
-     * @return List<String> list of category names
+     * @return {@code List<String>} list of category names
      */
     public List<String> getCategories() {
         List<WordEntry> allWords = getAllWords();
