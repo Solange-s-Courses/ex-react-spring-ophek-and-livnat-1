@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect, useState} from 'react';
 import Select from 'react-select';
 import useFetchCategories from '../../customHooks/useFetchCategories';
 
@@ -27,7 +27,16 @@ function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false
         value: category
     }));
 
-    (isError || categories.length === 0) ? setCanStartGame(false):setCanStartGame(true);
+    /**
+     * Controls whether the game can start based on category fetch status.
+     */
+    useEffect(() => {
+        if (isError || (!loading && categories.length === 0)) {
+            setCanStartGame(false);
+        } else if (!loading && categories.length > 0) {
+            setCanStartGame(true);
+        }
+    }, [isError, categories.length, loading, setCanStartGame]);
 
     /**
      * Handles selection of a category from the dropdown.
@@ -59,11 +68,6 @@ function CategoriesDropdown({ handleChange, value, isValid, id, disabled = false
             {isValid === false && (
                 <div className="invalid-feedback d-block">
                     Please select a category
-                </div>
-            )}
-            {categories.length === 0 && !loading && !isError && (
-                <div className="invalid-feedback d-block">
-                    No categories are currently available. Please add word categories.
                 </div>
             )}
             {errorMessage && (
