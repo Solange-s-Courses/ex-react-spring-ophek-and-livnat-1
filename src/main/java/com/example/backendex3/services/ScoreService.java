@@ -139,16 +139,4 @@ public class ScoreService {
 
         return scores.get(index).getScore();
     }
-
-    /**
-     * Gets the top N scores from the leaderboard.
-     *
-     * @param limit Maximum number of scores to return
-     * @return List of top scores, sorted in descending order
-     * @throws IOException if there's an error reading the file
-     */
-    public List<Score> getTopScores(int limit) throws IOException {
-        return scoreRepository.getTopScores(limit);
-    }
-
 }

@@ -99,22 +99,4 @@ public class ScoreRepository {
         }
         return false;
     }
-
-
-    /**
-     * Retrieves the top N scores sorted in descending order.
-     *
-     * @param limit The maximum number of scores to return.
-     * @return List of the top scores.
-     * @throws IOException if there's an error reading the file.
-     */
-    public synchronized List<Score> getTopScores(int limit) throws IOException {
-
-        List<Score> allScores = getAllScores();
-        // Sort scores in descending order (defensive sorting in case file was modified or not saved in order)
-        allScores.sort(Comparator.comparingInt(Score::getScore).reversed());
-
-        return allScores.size() <= limit ? allScores : allScores.subList(0, limit);
-    }
-
 }

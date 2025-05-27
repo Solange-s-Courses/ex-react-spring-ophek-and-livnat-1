@@ -103,14 +103,31 @@ public class WordEntryController {
     }
 
     /**
-     * Saves all pending changes to the data store.
+     * Checks if a word entry exists in the system.
      *
-     * @return HTTP 200 OK on successful save
+     * @param word The word to check
+     * @return A map with a single key "exists" indicating true or false
      */
-    @PostMapping("/save")
-    public ResponseEntity<HttpStatus> save() {
-        wordService.saveChanges();
-        return ResponseEntity.ok(HttpStatus.OK);
+    @GetMapping("/word/{word}/exists")
+    public ResponseEntity<Map<String, Boolean>> checkWordExists(@PathVariable("word") final String word) {
+        boolean exists = wordService.getWord(word) != null;
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Retrieves all distinct categories from word entries.
+     *
+     * @return List of category names
+     */
+    @GetMapping("/getCategories")
+    public ResponseEntity<List<String>> getCategories() {
+        List<String> categories = wordService.getCategories();
+        if (categories.isEmpty()) {
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+        return ResponseEntity.ok(categories);
     }
 
     /**
@@ -144,33 +161,5 @@ public class WordEntryController {
                     "No entry found for this word: " + word);
         }
         return entry;
-    }
-
-    /**
-     * Checks if a word entry exists in the system.
-     *
-     * @param word The word to check
-     * @return A map with a single key "exists" indicating true or false
-     */
-    @GetMapping("/word/{word}/exists")
-    public ResponseEntity<Map<String, Boolean>> checkWordExists(@PathVariable("word") final String word) {
-        boolean exists = wordService.getWord(word) != null;
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("exists", exists);
-        return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Retrieves all distinct categories from word entries.
-     *
-     * @return List of category names
-     */
-    @GetMapping("/getCategories")
-    public ResponseEntity<List<String>> getCategories() {
-        List<String> categories = wordService.getCategories();
-        if (categories.isEmpty()) {
-            return ResponseEntity.ok(new ArrayList<>());
-        }
-        return ResponseEntity.ok(categories);
     }
 }

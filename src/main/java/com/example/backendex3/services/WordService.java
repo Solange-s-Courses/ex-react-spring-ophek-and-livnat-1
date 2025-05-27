@@ -154,14 +154,6 @@ public class WordService {
     }
 
     /**
-     * Saves all changes to persistent storage
-     */
-    public void saveChanges() {
-        wordRepository.saveToFile();
-    }
-
-
-    /**
      * Retrieves a list of all unique word categories.
      *
      * @return List<String> list of category names
