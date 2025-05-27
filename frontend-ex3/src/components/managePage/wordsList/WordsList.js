@@ -2,46 +2,50 @@ import WordRow from './WordRow';
 import WordEditForm from "../addWordForm/WordEditForm";
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import React, {useEffect, useState} from "react";
-
+import { useWordManagement } from '../../WordManagementContext';
 
 /**
  * WordsList component that displays and manages a list of words.
- * It supports editing and deleting word entries and uses modals/forms for user interactions.
+ * Supports editing and deleting word entries using modals and inline forms.
  *
- * @param {Object} props - Component props
- * @param {Array} props.words - Array of word objects to display
- * @param {Function} props.updateWord - Function to update a word
- * @param {Function} props.deleteWord - Function to delete a word
- * @param {boolean} props.isUpdating - Whether an update operation is in progress
- * @param {boolean} props.isDeleting - Whether a delete operation is in progress
- * @returns {JSX.Element} Rendered component
- * @constructor
+ * @returns {JSX.Element} Rendered component showing words table or empty state
  */
-function WordsList({ words,
-                       updateWord,
-                       deleteWord,
-                       isUpdating = false,
-                       isDeleting = false,
-                       forceCloseModals = false}){
+function WordsList(){
+
+    const {
+        words,
+        updateWord,
+        deleteWord,
+        isUpdating,
+        isDeleting,
+        globalError,
+        cancelWithRefresh
+    } = useWordManagement();
 
     const [editingWord, setEditingWord] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [wordToDelete, setWordToDelete] = useState(null);
 
     /**
-     * useEffect hook to force-close all modals and forms when `forceCloseModals` becomes true.
+     * Effect hook to force-close all modals and forms when a global error occurs.
+     * This ensures that if an operation fails, any open UI elements are closed
+     * and the user sees the error message clearly without interference.
+     *
+     * @param {Object|null} globalError - The current global error state from Context
      */
     useEffect(() => {
-        if (forceCloseModals) {
+        if (globalError) {
             setEditingWord(null);
             setShowDeleteModal(false);
             setWordToDelete(null);
         }
-    }, [forceCloseModals]);
+    }, [globalError]);
 
     /**
      * Opens the delete confirmation modal for the selected word.
-     * @param {Object} wordEntry - The word object to delete.
+     * Sets up the modal state to show the confirmation dialog with the word's details.
+     *
+     * @param {Object} wordEntry - The word object to be deleted
      */
     const handleDeleteClick = (wordEntry) => {
         setWordToDelete(wordEntry);
@@ -49,17 +53,19 @@ function WordsList({ words,
     };
 
     /**
-     * Closes the delete confirmation modal.
-     * Prevents closing if a delete operation is currently in progress.
+     * Closes the delete confirmation modal and refreshes data.
+     * Refreshes to ensure we have latest data in case of external changes.
      */
     const handleCloseDeleteModal = () => {
-        if (isDeleting) return;     // Prevent closing while deletion is in progress
+        if (isDeleting) return;
         setShowDeleteModal(false);
         setWordToDelete(null);
+        cancelWithRefresh();
     };
 
     /**
-     * Confirms deletion of the selected word by calling `deleteWord` and closing the modal.
+     * Confirms deletion of the selected word by calling the Context delete function.
+     * Immediately closes the modal and initiates the delete operation.
      */
     const confirmDelete = () => {
         setShowDeleteModal(false);
@@ -68,28 +74,34 @@ function WordsList({ words,
     };
 
     /**
-     * Opens the edit form for the selected word.
-     * @param {Object} wordEntry - The word object to edit.
+     * Opens the inline edit form for the selected word.
+     * Replaces the word's table row with an editable form component.
+     *
+     * @param {Object} wordEntry - The word object to be edited
      */
     const handleEditWord = (wordEntry) => {
         setEditingWord(wordEntry);
     };
 
     /**
-     * Submits the updated word object and closes the edit form.
-     * @param {Object} updatedWord - The updated word data.
+     * Submits the updated word data and closes the edit form.
+     * Immediately closes the edit form and delegates the update operation to the Context.
+     *
+     * @param {Object} updatedWord - The updated word data from the edit form
      */
     const handleUpdateWord = (updatedWord) => {
         updateWord(updatedWord);
-        setEditingWord(null); // Close edit form immediately
+        setEditingWord(null);
     };
 
     /**
-     * Cancels editing mode. Disabled if an update is in progress.
+     * Cancels editing mode and refreshes data.
+     * Refreshes to ensure we have latest data in case of external changes.
      */
     const handleCancelEdit = () => {
-        if (isUpdating) return; // Prevent canceling while update is in progress
+        if (isUpdating) return;
         setEditingWord(null);
+        cancelWithRefresh();
     };
 
     return (
@@ -118,7 +130,6 @@ function WordsList({ words,
                                                 wordEntry={word}
                                                 updateWord={handleUpdateWord}
                                                 cancelEditing={handleCancelEdit}
-                                                isLoading={isUpdating}
                                             />
                                         </td>
                                     </tr>
@@ -154,7 +165,6 @@ function WordsList({ words,
                     isLoading={isDeleting}
                 />
             )}
-
         </div>
     );
 }

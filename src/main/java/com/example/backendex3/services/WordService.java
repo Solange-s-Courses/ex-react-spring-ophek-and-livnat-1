@@ -123,7 +123,7 @@ public class WordService {
 
         WordEntry existingEntry = wordRepository.findById(id);
         if (existingEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to update because it does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "word no longer exists");
         }
 
         String newWord = updatedEntry.getWord().toLowerCase();

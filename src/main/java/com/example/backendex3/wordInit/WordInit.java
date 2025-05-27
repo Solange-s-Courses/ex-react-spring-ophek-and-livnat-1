@@ -31,7 +31,7 @@ public class WordInit implements Serializable {
         words.add(new WordEntry("foods", "pizza", "Popular Italian dish with cheese"));
         words.add(new WordEntry("foods", "sushi", "Japanese dish with rice and fish"));
 
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("src/main/resources/words.ser"))) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("words.ser"))) {
             out.writeObject(words);
             System.out.println("words.ser created successfully with " + words.size() + " words.");
         }

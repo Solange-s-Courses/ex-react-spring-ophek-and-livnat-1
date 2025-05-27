@@ -1,15 +1,15 @@
 import React from 'react';
 import WordFormComponent from './WordFormComponent';
+import { useWordManagement } from '../../WordManagementContext';
 
 /**
- * WordForm component for adding a new word
+ * WordForm component for adding a new word to the system.
  *
- * @param {Object} props - Component props
- * @param {Function} props.addWord - Function to add a new word
- * @param {Function} props.setShowForm - Function to control form visibility
- * @returns {JSX.Element} Rendered component
+ * @returns {JSX.Element} Rendered add word form with title and form component
  */
-function WordForm({ addWord, setShowForm, isLoading = false}) {
+function WordForm() {
+
+    const { addWord, setShowForm, isAdding, cancelWithRefresh } = useWordManagement();
 
     const initialFormState = {
         word: '',
@@ -18,21 +18,21 @@ function WordForm({ addWord, setShowForm, isLoading = false}) {
     };
 
     /**
-     * Handles form submission logic
-     * Delegates to addWord with collected form data
+     * Handles form submission by delegating to the Context's addWord function.
      *
-     * @param {Object} formData - Submitted form data
+     * @param {Object} formData - The form data collected from WordFormComponent
      */
     const handleSubmit = (formData) => {
         addWord(formData);
     };
 
     /**
-     * Handles cancellation of the form
-     * Hides the form by updating state in the parent component
+     * Handles cancellation of the form and refreshes data.
+     * Refreshes to ensure we have latest data in case of external changes.
      */
     const handleCancel = () => {
         setShowForm(false);
+        cancelWithRefresh();
     };
 
     return (
@@ -43,8 +43,8 @@ function WordForm({ addWord, setShowForm, isLoading = false}) {
                 initialFormState={initialFormState}
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
-                submitButtonText={isLoading ? "Adding..." : "Add"}
-                disabled={isLoading}
+                submitButtonText={isAdding ? "Adding..." : "Add"}
+                disabled={isAdding}
             />
         </div>
     );

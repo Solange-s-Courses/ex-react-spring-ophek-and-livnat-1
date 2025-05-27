@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public class WordRepository {
 
-    private static final String WORD_FILE = "src/main/resources/words.ser";
+    private static final String WORD_FILE = "words.ser";
     private static final List<WordEntry> words = new ArrayList<>();
 
     /**
