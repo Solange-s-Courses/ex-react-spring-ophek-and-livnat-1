@@ -38,24 +38,4 @@ function HintSection({ hint, hintState, onHintPressed }) {
         </div>
     );
 }
-
-// function HintSection ({hint, hintState, onHintPressed}) {
-//     return (
-//         <div className="text-center mb-4">
-//             <button
-//                 className="btn btn-outline-info"
-//                 type="button"
-//                 onClick={onHintPressed}
-//             >
-//                 {hintState.showHint ? 'Hide Hint' : 'Show Hint'}
-//             </button>
-//             { hintState.showHint && (
-//                 <div className="mt-2 card card-body bg-light">
-//                     <p className="mb-0"><strong>Hint:</strong> {hint}</p>
-//                 </div>
-//             )}
-//         </div>
-//     );
-// }
-
 export default HintSection

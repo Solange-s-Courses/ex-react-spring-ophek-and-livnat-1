@@ -1,28 +1,3 @@
-// import React from "react";
-//
-// function WordDisplay ({hiddenWord, attemptsCounter}) {
-//     return (
-//         <div className="mb-5 text-center">
-//             <div className="alert alert-info fs-5 d-inline-block px-4 py-2 mb-4">
-//                 Number of Attempts: <span className="fw-bold">{attemptsCounter}</span>
-//             </div>
-//             <div className="d-flex justify-content-center gap-2 mb-2">
-//                 {hiddenWord.map((char, index) => (
-//                     <div
-//                         key={index}
-//                         className="d-inline-block border-bottom border-2 border-dark text-center mx-1"
-//                         style={{ width: '35px', height: '45px' }}
-//                     >
-//                         <span className="fs-3 fw-bold">{char !== '_' ? char : ''}</span>
-//                     </div>
-//                 ))}
-//             </div>
-//         </div>
-//
-//     );
-// }
-// export default WordDisplay
-
 import React from 'react';
 
 /**
