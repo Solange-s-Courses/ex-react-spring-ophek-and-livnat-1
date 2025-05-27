@@ -18,7 +18,7 @@ function AddWordButton() {
     };
 
     return (
-        <div className="mb-5 pt-5 d-grid d-md-flex justify-content-center">
+        <div className="mb-5 pt-3 d-grid d-md-flex justify-content-center">
             <button
                 className="btn btn-primary py-2 px-4 rounded-3 shadow-sm"
                 onClick={handleClick}

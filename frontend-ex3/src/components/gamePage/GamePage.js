@@ -276,16 +276,15 @@ function GamePage() {
 
     return (
         <div className="min-vh-100 py-5 bg-info bg-opacity-25">
-            <div className="container">
+            <div className="container-fluid">
 
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h1 className="display-5 fw-bold">Hangman Game</h1>
+                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-2">
+                    <h1 className="display-6 display-sm-5 fw-bold mb-2 mb-sm-0">Hangman Game</h1>
                     <div className="text-start">
-                        <p className="fs-5 mb-1">Player: <span className="fw-semibold">{nickname}</span></p>
-                        <p className="fs-5 mb-0">Category: <span className="fw-semibold">{category}</span></p>
+                        <p className="fs-6 fs-sm-5 mb-1">Player: <span className="fw-semibold">{nickname}</span></p>
+                        <p className="fs-6 fs-sm-5 mb-0">Category: <span className="fw-semibold">{category}</span></p>
                     </div>
                 </div>
-
 
                 <div className="card bg-light border-0 shadow rounded-3 p-4">
 

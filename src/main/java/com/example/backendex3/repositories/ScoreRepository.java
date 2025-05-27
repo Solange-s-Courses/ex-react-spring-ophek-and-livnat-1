@@ -12,7 +12,8 @@ import java.util.*;
 @Repository
 public class ScoreRepository {
 
-    private static final String SCORES_FILE = "src/main/resources/scores.ser";
+    //private static final String SCORES_FILE = "src/main/resources/scores.ser";
+    private static final String SCORES_FILE = "scores.ser";
 
     /**
      * Retrieves all scores from the serialized file.
