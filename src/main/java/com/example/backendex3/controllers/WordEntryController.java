@@ -129,37 +129,4 @@ public class WordEntryController {
         }
         return ResponseEntity.ok(categories);
     }
-
-    /**
-     * Retrieves a word entry by its unique ID.
-     *
-     * @param id ID of the word to retrieve
-     * @return The corresponding {@link WordEntry}
-     * @throws ResponseStatusException if the word is not found
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<WordEntry> getWordById(@PathVariable("id") final String id) {
-        WordEntry entry = wordService.getWordById(id);
-        if (entry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found with ID: " + id);
-        }
-        return ResponseEntity.ok(entry);
-    }
-
-    /**
-     * Retrieves a word entry by its word string.
-     *
-     * @param word The word to search for
-     * @return The corresponding {@link WordEntry}
-     * @throws ResponseStatusException if no such word entry is found
-     */
-    @GetMapping("/word/{word}")
-    public WordEntry getEntryByWord(@PathVariable("word") final String word) {
-        WordEntry entry = wordService.getWord(word);
-        if (entry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "No entry found for this word: " + word);
-        }
-        return entry;
-    }
 }
